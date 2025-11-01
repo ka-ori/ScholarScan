@@ -29,15 +29,25 @@ router.post('/upload', async (req, res, next) => {
       return res.status(400).json({ error: 'Only PDF files are allowed' });
     }
 
-    // Extract text from PDF
-    const extractedText = await processPDF(pdfFile.data);
+    console.log('Processing PDF:', pdfFile.name, 'Size:', pdfFile.size);
 
-    if (!extractedText || extractedText.trim().length < 100) {
-      return res.status(400).json({ error: 'Could not extract sufficient text from PDF' });
+    // Extract text from PDF
+    let pdfData;
+    try {
+      pdfData = await processPDF(pdfFile.data);
+    } catch (pdfError) {
+      console.error('PDF extraction failed:', pdfError.message);
+      return res.status(400).json({ 
+        error: pdfError.message || 'Could not extract text from PDF. The file may be scanned, encrypted, or corrupted.'
+      });
     }
 
-    // Use AI to analyze the paper
-    const analysis = await analyzePaper(extractedText);
+    const extractedText = pdfData.text;
+    console.log('Extracted text length:', extractedText.length);
+    console.log('Number of pages:', pdfData.numPages);
+
+    // Use AI to analyze the paper (pass page count for better estimation)
+    const analysis = await analyzePaper(extractedText, pdfData.numPages);
 
     // Save file
     const uploadDir = process.env.UPLOAD_DIR || './uploads';
@@ -46,12 +56,17 @@ router.post('/upload', async (req, res, next) => {
     
     await pdfFile.mv(filePath);
 
-    // Save to database
+    // Save to database (store keyFindings as part of summary for now)
+    const summaryWithFindings = JSON.stringify({
+      summary: analysis.summary,
+      keyFindings: analysis.keyFindings || []
+    });
+
     const paper = await prisma.paper.create({
       data: {
         title: analysis.title,
         authors: analysis.authors,
-        summary: analysis.summary,
+        summary: summaryWithFindings,
         keywords: analysis.keywords,
         category: analysis.category,
         fileName: pdfFile.name,
@@ -65,9 +80,21 @@ router.post('/upload', async (req, res, next) => {
       }
     });
 
+    // Parse the summary back for response
+    let parsedSummary;
+    try {
+      parsedSummary = JSON.parse(paper.summary);
+    } catch {
+      parsedSummary = { summary: paper.summary, keyFindings: [] };
+    }
+
     res.status(201).json({
       message: 'Paper uploaded and analyzed successfully',
-      paper
+      paper: {
+        ...paper,
+        summary: parsedSummary.summary,
+        keyFindings: parsedSummary.keyFindings
+      }
     });
   } catch (error) {
     next(error);
@@ -110,7 +137,25 @@ router.get('/', async (req, res, next) => {
       }
     });
 
-    res.json({ papers, count: papers.length });
+    // Parse summaries with keyFindings
+    const parsedPapers = papers.map(paper => {
+      let parsedSummary;
+      try {
+        parsedSummary = JSON.parse(paper.summary);
+        return {
+          ...paper,
+          summary: parsedSummary.summary || paper.summary,
+          keyFindings: parsedSummary.keyFindings || []
+        };
+      } catch {
+        return {
+          ...paper,
+          keyFindings: []
+        };
+      }
+    });
+
+    res.json({ papers: parsedPapers, count: parsedPapers.length });
   } catch (error) {
     next(error);
   }
@@ -130,7 +175,25 @@ router.get('/:id', async (req, res, next) => {
       return res.status(404).json({ error: 'Paper not found' });
     }
 
-    res.json({ paper });
+    // Parse summary with keyFindings
+    let parsedSummary;
+    try {
+      parsedSummary = JSON.parse(paper.summary);
+      res.json({ 
+        paper: {
+          ...paper,
+          summary: parsedSummary.summary || paper.summary,
+          keyFindings: parsedSummary.keyFindings || []
+        }
+      });
+    } catch {
+      res.json({ 
+        paper: {
+          ...paper,
+          keyFindings: []
+        }
+      });
+    }
   } catch (error) {
     next(error);
   }

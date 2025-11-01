@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './store/authStore'
 import Navbar from './components/Navbar'
+import HomePage from './pages/HomePage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
@@ -25,7 +26,7 @@ function App() {
         <Navbar />
         <Toaster position="top-right" />
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="/" element={<HomePage />} />
           <Route
             path="/login"
             element={

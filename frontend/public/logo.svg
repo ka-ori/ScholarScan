@@ -1,0 +1,27 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Graduation Cap -->
+  <g>
+    <!-- Cap Base -->
+    <path d="M32 16L8 26L32 36L56 26L32 16Z" fill="#6366F1" stroke="#4F46E5" stroke-width="2" stroke-linejoin="round"/>
+    
+    <!-- Cap Board -->
+    <rect x="12" y="24" width="40" height="3" fill="#4F46E5" rx="1"/>
+    
+    <!-- Left Side -->
+    <path d="M12 27L12 36C12 38 18 42 32 42C46 42 52 38 52 36L52 27" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round"/>
+    
+    <!-- Right Hanging String -->
+    <line x1="56" y1="26" x2="56" y2="40" stroke="#A855F7" stroke-width="2" stroke-linecap="round"/>
+    
+    <!-- Tassel -->
+    <circle cx="56" cy="42" r="3" fill="#A855F7"/>
+    
+    <!-- Sparkle 1 -->
+    <circle cx="20" cy="12" r="2" fill="#C084FC" opacity="0.8"/>
+    <circle cx="20" cy="12" r="1" fill="#FFFFFF"/>
+    
+    <!-- Sparkle 2 -->
+    <circle cx="48" cy="14" r="1.5" fill="#C084FC" opacity="0.8"/>
+    <circle cx="48" cy="14" r="0.7" fill="#FFFFFF"/>
+  </g>
+</svg>

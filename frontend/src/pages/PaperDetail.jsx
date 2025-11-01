@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Calendar, FileText, Tag, Edit2, Save, X } from 'lucide-react'
+import { ArrowLeft, Calendar, FileText, Tag, Edit2, Save, X, ExternalLink } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../api/axios'
+import PDFPreviewModal from '../components/PDFPreviewModal'
 
 function PaperDetail() {
   const { id } = useParams()
@@ -11,6 +12,10 @@ function PaperDetail() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState({})
+  const [showPDFPreview, setShowPDFPreview] = useState(false)
+  const [selectedSection, setSelectedSection] = useState('')
+  const [selectedTextSnippet, setSelectedTextSnippet] = useState('')
+  const [selectedPageNumber, setSelectedPageNumber] = useState(null)
 
   useEffect(() => {
     fetchPaper()
@@ -262,14 +267,67 @@ function PaperDetail() {
           {editing ? (
             <textarea
               className="input-field"
-              rows="6"
+              rows="8"
               value={formData.summary}
               onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
             />
           ) : (
-            <p className="text-gray-700 leading-relaxed">{paper.summary}</p>
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+              <p className="text-gray-700 leading-relaxed text-lg whitespace-pre-line">
+                {paper.summary}
+              </p>
+            </div>
           )}
         </div>
+
+        {/* Key Findings with PDF Preview Links */}
+        {!editing && paper.keyFindings && paper.keyFindings.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary-600" />
+              Key Findings & References
+            </h3>
+            <div className="space-y-3">
+              {paper.keyFindings.map((finding, idx) => (
+                <div
+                  key={`finding-${idx}`}
+                  className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-semibold text-sm">
+                      {idx + 1}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-gray-800 mb-2">{finding.finding}</p>
+                      <button
+                        onClick={() => {
+                          setSelectedSection(finding.section)
+                          setSelectedTextSnippet(finding.textSnippet || '')
+                          setSelectedPageNumber(finding.pageNumber || null)
+                          setShowPDFPreview(true)
+                        }}
+                        className="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        View in PDF: {finding.section}
+                        {finding.pageNumber && (
+                          <span className="text-xs text-gray-500">(Page {finding.pageNumber})</span>
+                        )}
+                        <span className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                          finding.confidence === 'high' ? 'bg-green-100 text-green-700' :
+                          finding.confidence === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {finding.confidence} confidence
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Keywords */}
         <div className="mb-6">
@@ -322,8 +380,19 @@ function PaperDetail() {
           </div>
         </div>
       </div>
+
+      {/* PDF Preview Modal */}
+      <PDFPreviewModal
+        isOpen={showPDFPreview}
+        onClose={() => setShowPDFPreview(false)}
+        pdfUrl={`http://localhost:5001/uploads/${paper?.filePath}`}
+        section={selectedSection}
+        textSnippet={selectedTextSnippet}
+        pageNumber={selectedPageNumber}
+      />
     </div>
   )
 }
 
 export default PaperDetail
+

@@ -1,0 +1,30 @@
+.react-pdf__Page__textContent {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 1;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.react-pdf__Page__textContent span {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  pointer-events: auto;
+}
+
+.react-pdf__Page__textContent span[data-highlighted="true"] {
+  background-color: rgba(255, 255, 0, 0.5) !important;
+  color: transparent !important;
+  border-radius: 2px;
+}
+
+.react-pdf__Page__textContent ::selection {
+  background: rgba(0, 123, 255, 0.3);
+}

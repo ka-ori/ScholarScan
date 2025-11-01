@@ -23,26 +23,21 @@ model User {
 }
 
 model Paper {
-  id            String   @id @default(uuid())
-  title         String
-  authors       String?
-  summary       String   @db.Text
-  keywords      String[]
-  category      String
-  fileName      String
-  filePath      String
-  fileSize      Int
-  uploadedAt    DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  fullText      String?  @db.Text
+  id              String   @id @default(uuid())
+  title           String
+  authors         String?
+  summary         String   @db.Text
+  keywords        String[]
+  category        String
+  fileName        String
+  filePath        String
+  fileSize        Int
+  uploadedAt      DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullText        String   @db.Text
   publicationYear Int?
-  journal       String?
-  doi           String?
-
-  @@map("papers")
-  @@index([userId])
-  @@index([category])
-  @@index([uploadedAt])
+  journal         String?
+  doi             String?
 }
