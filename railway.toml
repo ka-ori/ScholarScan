@@ -1,0 +1,13 @@
+# Build configuration for Railway/Render
+
+$schema: https://railway.app/railway.schema.json
+
+build:
+  builder: NIXPACKS
+  buildCommand: cd backend && npm install && npx prisma generate
+
+start:
+  startCommand: cd backend && npm start
+
+env:
+  NODE_ENV: production
