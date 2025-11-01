@@ -4,6 +4,7 @@ AI-powered research paper analysis and summarization platform that helps student
 
 ![ScholarScan](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Deploy](https://img.shields.io/badge/deployed-vercel-black)
 
 ## 🚀 Quick Start
 
