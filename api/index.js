@@ -13,11 +13,34 @@ app.use(express.json());
 
 // Health check
 app.get('/api', (req, res) => {
-  res.json({ message: 'ScholarScan API is running' });
+  res.json({ 
+    message: 'ScholarScan API is running',
+    env: {
+      hasDatabase: !!process.env.DATABASE_URL,
+      hasJWT: !!process.env.JWT_SECRET,
+      nodeEnv: process.env.NODE_ENV
+    }
+  });
 });
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Authentication service running' });
+  res.json({ 
+    status: 'ok', 
+    message: 'Authentication service running',
+    env: {
+      hasDatabase: !!process.env.DATABASE_URL,
+      hasJWT: !!process.env.JWT_SECRET
+    }
+  });
+});
+
+// Test endpoint
+app.post('/api/test', (req, res) => {
+  res.json({ 
+    message: 'POST request received',
+    body: req.body,
+    headers: req.headers
+  });
 });
 
 // Auth routes
