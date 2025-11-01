@@ -2,11 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './store/authStore'
 import Navbar from './components/Navbar'
+import HomePage from './pages/HomePage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
-import Upload from './pages/Upload'
-import PaperDetail from './pages/PaperDetail'
 
 function PrivateRoute({ children }) {
   const { isAuthenticated } = useAuthStore()
@@ -15,7 +14,7 @@ function PrivateRoute({ children }) {
 
 function PublicRoute({ children }) {
   const { isAuthenticated } = useAuthStore()
-  return !isAuthenticated ? children : <Navigate to="/dashboard" />
+  return isAuthenticated ? <Navigate to="/dashboard" /> : children
 }
 
 function App() {
@@ -25,7 +24,7 @@ function App() {
         <Navbar />
         <Toaster position="top-right" />
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" />} />
+          <Route path="/" element={<HomePage />} />
           <Route
             path="/login"
             element={
@@ -47,22 +46,6 @@ function App() {
             element={
               <PrivateRoute>
                 <Dashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/upload"
-            element={
-              <PrivateRoute>
-                <Upload />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/paper/:id"
-            element={
-              <PrivateRoute>
-                <PaperDetail />
               </PrivateRoute>
             }
           />
