@@ -16,7 +16,7 @@ function Login() {
     setLoading(true)
 
     try {
-      const { data } = await api.post('/auth/login', formData)
+      const { data } = await api.post('/api/auth/login', formData)
       login(data.token, data.user)
       toast.success('Login successful!')
       navigate('/dashboard')

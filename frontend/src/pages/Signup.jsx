@@ -22,7 +22,7 @@ function Signup() {
     setLoading(true)
 
     try {
-      const { data } = await api.post('/auth/signup', formData)
+      const { data } = await api.post('/api/auth/signup', formData)
       login(data.token, data.user)
       toast.success('Account created successfully!')
       navigate('/dashboard')
