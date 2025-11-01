@@ -139,5 +139,19 @@ app.get('/api/auth/me', async (req, res) => {
   }
 });
 
+// Catch-all for debugging
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Route not found',
+    debug: {
+      method: req.method,
+      path: req.path,
+      url: req.url,
+      originalUrl: req.originalUrl,
+      baseUrl: req.baseUrl
+    }
+  });
+});
+
 module.exports = app;
 
