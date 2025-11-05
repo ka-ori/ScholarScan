@@ -1,301 +1,254 @@
 import { useState } from 'react'
-import { useAuthStore } from '../store/authStore'
 import { 
-  FileText, Upload, Brain, Sparkles, Search, ChevronRight, 
-  BookOpen, BarChart3, HelpCircle, LogOut, Menu, X, ChevronDown,
-  TrendingUp, TrendingDown, Users
+  FileText, Upload, Brain, Search, Filter, Clock, Tag
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 function Dashboard() {
-  const { user, logout } = useAuthStore()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('papers')
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
+  const [activeView, setActiveView] = useState('library')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('All Categories')
 
   // Mock data for demonstration
   const mockPapers = [
     {
       id: 1,
-      title: "Deep Learning in Medical Imaging",
-      authors: "Stanford University",
-      uploadDate: "2024-11-01",
-      citations: 234,
-      status: "Analyzed"
+      title: "Attention Is All You Need: A Comprehensive Study of...",
+      description: "This seminal paper introduces the Transformer architecture, revolutionizing natural language...",
+      category: "Machine Learning",
+      date: "2024-01-15",
+      tags: ["Transformers", "Attention Mechanism", "Neural Networks"],
+      status: "analyzed"
     },
     {
       id: 2,
-      title: "Quantum Computing Applications",
-      authors: "MIT Research",
-      uploadDate: "2024-10-28",
-      citations: 189,
-      status: "Processing"
+      title: "Deep Residual Learning for Image Recognition",
+      description: "ResNet introduces skip connections that enable training of extremely deep neural networks. This breakthrough...",
+      category: "Computer Vision",
+      date: "2024-01-12",
+      tags: ["ResNet", "Deep Learning", "Image Classification"],
+      status: "analyzed"
     },
     {
       id: 3,
-      title: "Climate Change Models 2024",
-      authors: "Oxford University",
-      uploadDate: "2024-10-25",
-      citations: 567,
-      status: "Analyzed"
+      title: "BERT: Pre-training of Deep Bidirectional Transformers fo...",
+      description: "BERT demonstrates the power of bidirectional pre-training for language representations. By using masked...",
+      category: "Natural Language Processing",
+      date: "2024-01-10",
+      tags: ["BERT", "Pre-training", "Language Models"],
+      status: "analyzing"
+    },
+    {
+      id: 4,
+      title: "Generative Adversarial Networks",
+      description: "GANs present a novel framework for training generative models through an adversarial process...",
+      category: "Machine Learning",
+      date: "2024-01-08",
+      tags: ["GANs", "Generative Models", "Deep Learning"],
+      status: "analyzed"
+    },
+    {
+      id: 5,
+      title: "Reinforcement Learning in Robotics",
+      description: "This comprehensive survey explores the application of reinforcement learning techniques in robotic...",
+      category: "Robotics",
+      date: "2024-01-05",
+      tags: ["Reinforcement Learning", "Robotics", "Control"],
+      status: "analyzed"
+    },
+    {
+      id: 6,
+      title: "Graph Neural Networks: A Review",
+      description: "GNNs extend deep learning to graph-structured data, enabling powerful representations for molecular...",
+      category: "Data Science",
+      date: "2024-01-03",
+      tags: ["GNNs", "Graph Theory", "Neural Networks"],
+      status: "analyzing"
     }
   ]
 
-  const sidebarItems = [
-    { id: 'overview', icon: BarChart3, label: 'Dashboard', active: false },
-    { id: 'papers', icon: FileText, label: 'Research Papers', active: true },
-    { id: 'analysis', icon: Brain, label: 'AI Analysis', active: false },
-    { id: 'search', icon: Search, label: 'Search', active: false },
-    { id: 'help', icon: HelpCircle, label: 'Help', active: false }
+  const categories = [
+    "Machine Learning",
+    "Computer Vision", 
+    "Natural Language Processing",
+    "Robotics",
+    "Data Science"
   ]
 
+  const getCategoryColor = (category) => {
+    const colors = {
+      "Machine Learning": "bg-blue-500",
+      "Computer Vision": "bg-purple-500",
+      "Natural Language Processing": "bg-green-500",
+      "Robotics": "bg-orange-500",
+      "Data Science": "bg-pink-500"
+    }
+    return colors[category] || "bg-gray-500"
+  }
+
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Mobile Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transition-transform duration-300`}>
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-white" />
-              </div>
-              <span className="font-bold text-lg text-gray-900">ScholarScan</span>
-            </div>
-            <button onClick={() => setSidebarOpen(false)} className="md:hidden">
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
-            {sidebarItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  item.active || activeTab === item.id
-                    ? 'bg-indigo-600 text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
-                <ChevronRight className="w-4 h-4 ml-auto" />
-              </button>
-            ))}
-          </nav>
-
-          {/* Upgrade CTA */}
-          <div className="p-4 m-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl text-white">
-            <Sparkles className="w-8 h-8 mb-2" />
-            <h3 className="font-bold mb-1">Upgrade to Pro</h3>
-            <p className="text-sm text-indigo-100 mb-3">Get unlimited AI analysis!</p>
-            <button className="w-full bg-white text-indigo-600 py-2 rounded-lg font-semibold hover:bg-indigo-50 transition-colors">
-              Get Pro Now!
-            </button>
-          </div>
-
-          {/* User Profile */}
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                {user?.name?.[0] || user?.email?.[0].toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">
-                  {user?.name || user?.email?.split('@')[0]}
-                </p>
-                <p className="text-xs text-gray-500">Project Manager</p>
-              </div>
-              <button onClick={handleLogout} className="p-2 hover:bg-gray-100 rounded-lg">
-                <LogOut className="w-4 h-4 text-gray-500" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </aside>
-
+    <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-          <div className="flex items-center justify-between p-6">
-            <div className="flex items-center gap-4">
-              <button onClick={() => setSidebarOpen(true)} className="md:hidden">
-                <Menu className="w-6 h-6 text-gray-500" />
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Hello {user?.name || user?.email?.split('@')[0]} 👋
-                </h1>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-black mb-2">Your Research Library</h1>
+          <p className="text-gray-600">Upload, analyze, and organize your academic papers with AI</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 border-b border-gray-200">
+          <button
+            onClick={() => setActiveView('upload')}
+            className={`px-6 py-3 font-medium transition-colors relative ${
+              activeView === 'upload'
+                ? 'text-black border-b-2 border-black'
+                : 'text-gray-500 hover:text-black'
+            }`}
+          >
+            Upload Paper
+          </button>
+          <button
+            onClick={() => setActiveView('library')}
+            className={`px-6 py-3 font-medium transition-colors relative ${
+              activeView === 'library'
+                ? 'text-black border-b-2 border-black'
+                : 'text-gray-500 hover:text-black'
+            }`}
+          >
+            My Library (6)
+          </button>
+        </div>
+
+        {activeView === 'upload' ? (
+          /* Upload View */
+          <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-16 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Upload className="w-8 h-8 text-gray-600" />
               </div>
+              <h3 className="text-xl font-bold text-black mb-3">Upload Research Paper</h3>
+              <p className="text-gray-600 mb-6">Drag and drop your PDF file here, or click to browse</p>
+              <button className="px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
+                Browse Files
+              </button>
+              <p className="text-sm text-gray-500 mt-4">
+                <FileText className="w-4 h-4 inline mr-1" />
+                PDF files only, max 50MB
+              </p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          </div>
+        ) : (
+          /* Library View */
+          <div>
+            {/* Search and Filters */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search"
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-64"
+                  placeholder="Search papers by title, keywords, or summary..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
               </div>
-            </div>
-          </div>
-        </header>
-
-        <div className="p-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-green-600" />
-                </div>
-                <div className="flex items-center gap-1 text-green-600 text-sm font-semibold">
-                  <TrendingUp className="w-4 h-4" />
-                  18% this month
-                </div>
-              </div>
-              <p className="text-gray-600 text-sm mb-1">Total Papers</p>
-              <p className="text-3xl font-bold text-gray-900">5,423</p>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Brain className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="flex items-center gap-1 text-red-600 text-sm font-semibold">
-                  <TrendingDown className="w-4 h-4" />
-                  1% this month
-                </div>
-              </div>
-              <p className="text-gray-600 text-sm mb-1">AI Analyzed</p>
-              <p className="text-3xl font-bold text-gray-900">1,893</p>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Users className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="flex -space-x-2">
-                    <div className="w-6 h-6 bg-gradient-to-br from-pink-400 to-red-500 rounded-full border-2 border-white"></div>
-                    <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full border-2 border-white"></div>
-                    <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full border-2 border-white"></div>
-                    <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full border-2 border-white"></div>
-                  </div>
-                </div>
-              </div>
-              <p className="text-gray-600 text-sm mb-1">Citations Found</p>
-              <p className="text-3xl font-bold text-gray-900">189</p>
-            </div>
-          </div>
-
-          {/* All Research Papers Table */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-xl font-bold text-gray-900">All Research Papers</h2>
-                <button className="text-indigo-600 hover:text-indigo-700 font-semibold text-sm flex items-center gap-1">
-                  <Upload className="w-4 h-4" />
-                  Upload Paper
+              <div className="flex gap-2">
+                <select 
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-gray-700"
+                >
+                  <option>All Categories</option>
+                  {categories.map(cat => (
+                    <option key={cat}>{cat}</option>
+                  ))}
+                </select>
+                <button className="px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Filter className="w-5 h-5 text-gray-600" />
                 </button>
+                <select className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-gray-700">
+                  <option>Most Recent</option>
+                  <option>Oldest First</option>
+                  <option>A-Z</option>
+                  <option>Z-A</option>
+                </select>
               </div>
-              <p className="text-sm text-green-600 font-medium">Active Papers</p>
             </div>
 
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">Short by:</span>
-                  <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    <span className="text-sm font-medium">Newest</span>
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+            {/* Papers Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {mockPapers.map((paper) => (
+                <div
+                  key={paper.id}
+                  className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => navigate(`/paper/${paper.id}`)}
+                >
+                  {/* Category Badge */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className={`w-10 h-10 ${getCategoryColor(paper.category)} rounded-lg flex items-center justify-center`}>
+                      <FileText className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Clock className="w-4 h-4" />
+                      {new Date(paper.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </div>
+                  </div>
 
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Paper Title</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Authors/Institution</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Upload Date</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Citations</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mockPapers.map((paper) => (
-                      <tr key={paper.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-4 px-4 text-sm text-gray-900 font-medium">{paper.title}</td>
-                        <td className="py-4 px-4 text-sm text-gray-600">{paper.authors}</td>
-                        <td className="py-4 px-4 text-sm text-gray-600">{paper.uploadDate}</td>
-                        <td className="py-4 px-4 text-sm text-gray-600">{paper.citations}</td>
-                        <td className="py-4 px-4">
-                          <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${
-                            paper.status === 'Analyzed'
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {paper.status}
-                          </span>
-                        </td>
-                      </tr>
+                  {/* Title */}
+                  <h3 className="text-lg font-bold text-black mb-2 line-clamp-2">
+                    {paper.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                    {paper.description}
+                  </p>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {paper.tags.slice(0, 2).map((tag, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200"
+                      >
+                        <Tag className="w-3 h-3" />
+                        {tag}
+                      </span>
                     ))}
-                  </tbody>
-                </table>
-              </div>
+                    {paper.tags.length > 2 && (
+                      <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200">
+                        +{paper.tags.length - 2} more
+                      </span>
+                    )}
+                  </div>
 
-              {/* Pagination */}
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-600">
-                  Showing data 1 to 3 of 256 entries
-                </p>
-                <div className="flex items-center gap-2">
-                  <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
-                    <ChevronRight className="w-4 h-4 rotate-180" />
-                  </button>
-                  <button className="w-8 h-8 bg-indigo-600 text-white rounded font-semibold">1</button>
-                  <button className="w-8 h-8 border border-gray-300 rounded hover:bg-gray-50">2</button>
-                  <button className="w-8 h-8 border border-gray-300 rounded hover:bg-gray-50">3</button>
-                  <button className="w-8 h-8 border border-gray-300 rounded hover:bg-gray-50">4</button>
-                  <span className="px-2">...</span>
-                  <button className="w-8 h-8 border border-gray-300 rounded hover:bg-gray-50">40</button>
-                  <button className="p-2 border border-gray-300 rounded hover:bg-gray-50">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
+                  {/* Footer */}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <span className="text-sm text-gray-600">{paper.category}</span>
+                    <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
+                      View Details
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Status Badge */}
+                  {paper.status === 'analyzing' && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <div className="flex items-center gap-2">
+                        <Brain className="w-4 h-4 text-gray-500 animate-pulse" />
+                        <span className="text-xs text-gray-500 font-medium">AI Analysis in progress...</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   )
