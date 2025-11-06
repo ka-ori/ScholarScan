@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+    html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     @apply bg-gray-50 text-gray-900;
   }
@@ -212,6 +216,21 @@
   align-items: center !important;
   justify-content: center !important;
   border-radius: 50% !important;
+}
+
+.period-dot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: #111;
+  color: transparent;
+  pointer-events: none;
+  transform-origin: center;
+  will-change: transform;
 }
 
 .notyf__dismiss-btn:hover {
