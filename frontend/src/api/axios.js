@@ -22,8 +22,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      useAuthStore.getState().logout()
-      window.location.href = '/login'
+      // Don't auto-redirect on auth endpoints (login/signup)
+      // These endpoints return 401 for invalid credentials, not for expired tokens
+      const url = error.config?.url || ''
+      const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/signup')
+      
+      if (!isAuthEndpoint) {
+        // For other endpoints, logout and redirect to login
+        useAuthStore.getState().logout()
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
+      }
     }
     return Promise.reject(error)
   }

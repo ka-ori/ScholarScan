@@ -279,10 +279,10 @@ function HomePage() {
               <span className="text-xl font-bold text-black">ScholarScan</span>
             </div>
             <div className="flex gap-8 text-sm text-gray-600">
-              <a href="#" className="hover:text-black">About</a>
-              <a href="#" className="hover:text-black">Pricing</a>
-              <a href="#" className="hover:text-black">Security</a>
-              <a href="#" className="hover:text-black">Contact</a>
+              <button className="hover:text-black cursor-pointer">About</button>
+              <button className="hover:text-black cursor-pointer">Pricing</button>
+              <button className="hover:text-black cursor-pointer">Security</button>
+              <button className="hover:text-black cursor-pointer">Contact</button>
             </div>
           </div>
           <div className="mt-8 pt-8 border-t-2 border-gray-200 text-center text-sm text-gray-500">

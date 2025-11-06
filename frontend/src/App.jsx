@@ -1,56 +1,34 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './store/authStore'
-import Navbar from './components/Navbar'
 import HomePage from './pages/HomePage'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
-
-function PrivateRoute({ children }) {
-  const { isAuthenticated } = useAuthStore()
-  return isAuthenticated ? children : <Navigate to="/login" />
-}
-
-function PublicRoute({ children }) {
-  const { isAuthenticated } = useAuthStore()
-  return isAuthenticated ? <Navigate to="/dashboard" /> : children
-}
+import Upload from './pages/Upload'
+import PaperDetail from './pages/PaperDetail'
 
 function App() {
+  const { isAuthenticated } = useAuthStore()
+
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <Toaster position="top-right" />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              <PublicRoute>
-                <Signup />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route
+          path="/dashboard"
+          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/upload"
+          element={isAuthenticated ? <Upload /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/paper/:id"
+          element={isAuthenticated ? <PaperDetail /> : <Navigate to="/login" />}
+        />
+      </Routes>
     </Router>
   )
 }
