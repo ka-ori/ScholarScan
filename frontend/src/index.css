@@ -219,10 +219,8 @@
 }
 
 .period-dot {
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: block;
+  display: inline-block;
+  vertical-align: baseline;
   width: 16px;
   height: 16px;
   border-radius: 9999px;
@@ -230,7 +228,7 @@
   color: transparent;
   pointer-events: none;
   transform-origin: center;
-  will-change: transform;
+  will-change: transform, width, height;
 }
 
 .notyf__dismiss-btn:hover {

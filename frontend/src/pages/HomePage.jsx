@@ -328,7 +328,7 @@ function HomePage() {
       <div className="relative pt-32 pb-20 px-4">
         <div className={`max-w-5xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-black mb-6">
-            AI-Powered Research.
+            AI-Powered Research<span ref={periodRef} className="period-dot">.</span>
             <br />
             <span ref={instantAnalysisRef} className="relative inline-block">
               <span className="letter-track inline-flex relative items-end">
@@ -342,7 +342,7 @@ function HomePage() {
                     {letter === ' ' ? '\u00A0' : letter}
                   </span>
                 ))}
-                <span ref={periodRef} className="period-dot">.</span>
+                {/* animated period moved to the first line */}
               </span>
               <div ref={underlineRef} className="absolute -bottom-4 left-0 right-0 h-2 bg-black"></div>
             </span>
