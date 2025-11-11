@@ -334,15 +334,16 @@ npx prisma migrate dev --name init
 
 ## 🚀 Deployment
 
-### Backend Deployment (Railway/Render)
+### Backend Deployment (Vercel Serverless)
 1. Push code to GitHub
-2. Connect repository to Railway/Render
-3. Add environment variables
-4. Deploy
+2. Connect repository to Vercel
+3. Configure with vercel.backend.json
+4. Add environment variables
+5. Deploy
 
-### Frontend Deployment (Vercel/Netlify)
+### Frontend Deployment (Vercel)
 1. Push code to GitHub
-2. Connect repository to Vercel/Netlify
+2. Connect repository to Vercel
 3. Add environment variables (VITE_API_URL)
 4. Deploy
 

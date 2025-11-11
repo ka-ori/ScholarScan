@@ -57,37 +57,24 @@ cd frontend && npm run dev
    - Output Directory: `dist`
 5. Add environment variable:
    ```
-   VITE_API_URL=https://your-backend.railway.app/api
+   VITE_API_URL=https://your-vercel-project.vercel.app/api
    ```
 6. Deploy
 
-### Backend (Railway)
+### Backend (Vercel Serverless Functions)
 
-1. Go to [railway.app](https://railway.app)
-2. Create new project
+1. Go to [vercel.com](https://vercel.com)
+2. Create new project for backend
 3. Deploy from GitHub repo
-4. Add environment variables:
+4. Configure with `vercel.backend.json`
+5. Add environment variables:
    ```
    NODE_ENV=production
-   PORT=5000
    DATABASE_URL=your-neon-connection-string
    JWT_SECRET=your-secret
    OPENAI_API_KEY=your-key
    FRONTEND_URL=https://your-frontend.vercel.app
    ```
-5. Add start command: `cd backend && npm start`
-6. Deploy
-
-### Alternative: Backend on Render
-
-1. Go to [render.com](https://render.com)
-2. Create Web Service
-3. Connect repository
-4. Configure:
-   - Root Directory: backend
-   - Build Command: `npm install && npx prisma generate`
-   - Start Command: `npm start`
-5. Add environment variables (same as Railway)
 6. Deploy
 
 ## Testing
@@ -214,7 +201,7 @@ User Browser
     ↓
 React Frontend (Vercel)
     ↓
-Express Backend (Railway)
+Express Backend (Vercel Serverless)
     ↓
     ├── PostgreSQL (Neon.tech)
     └── OpenAI API

@@ -35,7 +35,7 @@ Visit `http://localhost:5173` to use the app!
 - **Search & Filter** - Find papers by title, authors, keywords, or category
 - **CRUD Operations** - Full create, read, update, delete functionality
 - **Responsive Dashboard** - Modern UI built with React and TailwindCSS
-- **Cloud Deployment** - Ready for deployment on Vercel, Railway, and Neon.tech
+- **Cloud Deployment** - Ready for deployment on Vercel and Neon.tech
 
 ## 🛠️ Tech Stack
 
@@ -56,7 +56,7 @@ Visit `http://localhost:5173` to use the app!
 
 ### Deployment
 - Frontend: Vercel
-- Backend: Railway/Render
+- Backend: Vercel (Serverless Functions)
 - Database: Neon.tech
 
 ## 📁 Project Structure
@@ -113,7 +113,7 @@ See [DEVELOPMENT.md](./DEVELOPMENT.md) for detailed deployment instructions.
 
 Quick deployment:
 1. **Database**: Create on [Neon.tech](https://neon.tech)
-2. **Backend**: Deploy to [Railway.app](https://railway.app)
+2. **Backend**: Deploy to [Vercel.com](https://vercel.com) using serverless functions
 3. **Frontend**: Deploy to [Vercel.com](https://vercel.com)
 
 ## 🤝 Contributing

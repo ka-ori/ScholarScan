@@ -42,6 +42,17 @@
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 @keyframes slideOutToBottomRight {
   from {
     transform: translateX(0) translateY(0);
@@ -51,6 +62,10 @@
     transform: translateX(500px) translateY(500px);
     opacity: 0;
   }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 .Toastify__toast-container {
@@ -219,8 +234,10 @@
 }
 
 .period-dot {
-  display: inline-block;
-  vertical-align: baseline;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
   width: 16px;
   height: 16px;
   border-radius: 9999px;
@@ -228,7 +245,7 @@
   color: transparent;
   pointer-events: none;
   transform-origin: center;
-  will-change: transform, width, height;
+  will-change: transform;
 }
 
 .notyf__dismiss-btn:hover {

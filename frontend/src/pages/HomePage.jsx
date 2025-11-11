@@ -10,6 +10,7 @@ gsap.registerPlugin(ScrollTrigger)
 function HomePage() {
   const { isAuthenticated } = useAuthStore()
   const [isVisible, setIsVisible] = useState(false)
+  const [showScrollTop, setShowScrollTop] = useState(false)
   const trustedByRef = useRef(null)
   const researchLibRef = useRef(null)
   const feature1Ref = useRef(null)
@@ -23,6 +24,13 @@ function HomePage() {
 
   useEffect(() => {
     setIsVisible(true)
+
+    // Scroll to top button visibility
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300)
+    }
+
+    window.addEventListener('scroll', handleScroll)
 
     // Enable smooth scrolling
     gsap.config({
@@ -146,9 +154,9 @@ function HomePage() {
                   duration: 0.3,
                   onComplete: () => {
                     gsap.to(letter, {
-                      color: '#000000',
+                      color: '#111',
                       duration: 0.3,
-                      delay: 0.2
+                      delay: 0.15
                     })
                   }
                 })
@@ -176,13 +184,20 @@ function HomePage() {
     if (trustedByRef.current) {
       const logosContainer = trustedByRef.current.querySelector('.logos-scroll')
       
-      // Create seamless infinite loop animation
-      gsap.to(logosContainer, {
-        x: '-50%',
-        duration: 30,
-        ease: 'none',
-        repeat: -1
-      })
+      if (logosContainer) {
+        // Animation: scroll left infinitely
+        gsap.fromTo(
+          logosContainer,
+          { x: 0 },
+          {
+            x: -logosContainer.offsetWidth / 3, // Scroll by one set width
+            duration: 30,
+            ease: 'none',
+            repeat: -1,
+            repeatDelay: 0
+          }
+        )
+      }
     }
 
     // Animate research-lib with pop-up effect
@@ -247,9 +262,9 @@ function HomePage() {
       const rightContent = feature2Ref.current.querySelector('.feature-content')
       
       gsap.fromTo(leftContent,
-        { x: -100, opacity: 0 },
+        { y: 100, opacity: 0 },
         {
-          x: 0,
+          y: 0,
           opacity: 1,
           duration: 1,
           ease: 'power3.out',
@@ -262,9 +277,9 @@ function HomePage() {
       )
 
       gsap.fromTo(rightContent,
-        { x: 100, opacity: 0 },
+        { y: -100, opacity: 0 },
         {
-          x: 0,
+          y: 0,
           opacity: 1,
           duration: 1,
           ease: 'power3.out',
@@ -318,17 +333,62 @@ function HomePage() {
 
     // Cleanup
     return () => {
+      window.removeEventListener('scroll', handleScroll)
       ScrollTrigger.getAll().forEach(trigger => trigger.kill())
     }
   }, [])
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
+    <div className="min-h-screen bg-white relative">
+      {/* Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-8 right-8 z-40 bg-black text-white p-3 rounded-full hover:bg-gray-800 transition-all shadow-lg animate-fadeIn"
+          aria-label="Scroll to top"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
+      )}
+
+      {/* Navigation Bar */}
+      <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex gap-8">
+            <a href="#features" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+              Features
+            </a>
+            <a href="#search" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+              Search
+            </a>
+            <a href="#social-proof" className="text-sm font-medium text-gray-600 hover:text-black transition-colors">
+              Testimonials
+            </a>
+          </div>
+          <div className="flex gap-3">
+            <Link
+              to={isAuthenticated ? "/dashboard" : "/login"}
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-black transition-colors"
+            >
+              Sign in
+            </Link>
+            <Link
+              to={isAuthenticated ? "/dashboard" : "/signup"}
+              className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors"
+            >
+              Get Started
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section - Add padding-top for navbar */}
       <div className="relative pt-32 pb-20 px-4">
         <div className={`max-w-5xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-black mb-6">
-            AI-Powered Research<span ref={periodRef} className="period-dot">.</span>
+            AI-Powered Research.
             <br />
             <span ref={instantAnalysisRef} className="relative inline-block">
               <span className="letter-track inline-flex relative items-end">
@@ -342,7 +402,7 @@ function HomePage() {
                     {letter === ' ' ? '\u00A0' : letter}
                   </span>
                 ))}
-                {/* animated period moved to the first line */}
+                <span ref={periodRef} className="period-dot">.</span>
               </span>
               <div ref={underlineRef} className="absolute -bottom-4 left-0 right-0 h-2 bg-black"></div>
             </span>
@@ -433,12 +493,20 @@ function HomePage() {
               <div className="text-3xl font-bold text-black whitespace-nowrap">MIT</div>
               <div className="text-3xl font-bold text-black whitespace-nowrap">Stanford</div>
             </div>
+            {/* Triple set for extra coverage */}
+            <div className="flex gap-24 opacity-40">
+              <div className="text-3xl font-bold text-black whitespace-nowrap">OpenAI</div>
+              <div className="text-3xl font-bold text-black whitespace-nowrap">Vercel</div>
+              <div className="text-3xl font-bold text-black whitespace-nowrap">Google</div>
+              <div className="text-3xl font-bold text-black whitespace-nowrap">MIT</div>
+              <div className="text-3xl font-bold text-black whitespace-nowrap">Stanford</div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Feature 1 - AI Analysis */}
-      <div ref={feature1Ref} className="py-24 bg-white">
+      <div ref={feature1Ref} id="features" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="feature-content">
@@ -498,7 +566,7 @@ function HomePage() {
       </div>
 
       {/* Feature 2 - Search */}
-      <div ref={feature2Ref} className="py-24 bg-gray-50">
+      <div ref={feature2Ref} id="search" className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="feature-visual bg-white rounded-2xl p-8 shadow-2xl border-2 border-gray-200">
@@ -543,7 +611,7 @@ function HomePage() {
       </div>
 
       {/* Social Proof */}
-      <div ref={socialProofRef} className="py-24 bg-white">
+      <div ref={socialProofRef} id="social-proof" className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-5xl font-bold text-center mb-16 text-black">
             Trusted by teams that ship.

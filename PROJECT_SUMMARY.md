@@ -40,7 +40,7 @@ ScholarScan is now fully built and ready to use! This is a complete full-stack a
 
 ### 4. DevOps & Deployment
 - ✅ Vercel configuration for frontend
-- ✅ Railway configuration for backend
+- ✅ Vercel serverless configuration for backend
 - ✅ Environment variable templates
 - ✅ Git repository initialized
 - ✅ Comprehensive .gitignore
@@ -95,7 +95,7 @@ ScholarScan is now fully built and ready to use! This is a complete full-stack a
 
 **Backend:** Node.js, Express.js, Prisma ORM, PostgreSQL, JWT, bcryptjs, OpenAI API, pdf-parse
 
-**Deployment:** Vercel (frontend), Railway/Render (backend), Neon.tech (database)
+**Deployment:** Vercel (frontend and backend serverless), Neon.tech (database)
 
 ## 🚀 How to Get Started
 
@@ -238,14 +238,13 @@ This project demonstrates:
 
 **Development (Free):**
 - Neon.tech: Free tier (sufficient)
-- Vercel: Free tier
-- Railway: Free tier ($5 credit)
+- Vercel: Free tier (frontend + backend)
 
 **Production (Paid):**
 - Neon.tech: ~$0-20/month
-- Railway/Render: ~$5-10/month
+- Vercel: Pro tier ~$20/month (if needed for higher limits)
 - OpenAI API: Pay per use (~$0.01-0.10 per paper)
-- Total: ~$10-30/month
+- Total: ~$20-40/month
 
 ## 🐛 Known Limitations
 

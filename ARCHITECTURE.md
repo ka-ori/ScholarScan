@@ -194,13 +194,13 @@ Papers (Protected):
                               │
                 ┌─────────────┴──────────────┐
                 ▼                            ▼
-    ┌───────────────────┐         ┌─────────────────┐
-    │  Vercel (Frontend)│         │ Railway (Backend)│
-    │                   │         │                  │
-    │  • CDN           │         │  • Node.js       │
-    │  • Auto Deploy   │         │  • Auto Deploy   │
-    │  • SSL           │         │  • SSL           │
-    └───────────────────┘         └────────┬─────────┘
+    ┌───────────────────┐         ┌──────────────────────┐
+    │  Vercel (Frontend)│         │ Vercel (Backend API) │
+    │                   │         │                      │
+    │  • CDN           │         │  • Serverless Funcs  │
+    │  • Auto Deploy   │         │  • Auto Deploy       │
+    │  • SSL           │         │  • SSL               │
+    └───────────────────┘         └────────┬─────────────┘
                                            │
                               ┌────────────┴──────────────┐
                               ▼                           ▼
@@ -306,7 +306,7 @@ Development:
 
 Production:
 ├── Frontend: https://scholarscan.vercel.app
-├── Backend: https://scholarscan.railway.app
+├── Backend: https://scholarscan.vercel.app/api
 ├── Database: Neon.tech serverless PostgreSQL
 └── OpenAI: Production API
 ```
