@@ -1,14 +1,21 @@
 import { useState } from 'react'
 import { 
-  FileText, Upload, Brain, Search, Filter, Clock, Tag
+  FileText, Upload, Brain, Search, Filter, Clock, Tag, LogOut
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '../store/authStore'
 
 function Dashboard() {
   const navigate = useNavigate()
+  const { logout } = useAuthStore()
   const [activeView, setActiveView] = useState('library')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All Categories')
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
 
   // Mock data for demonstration
   const mockPapers = [
@@ -92,9 +99,18 @@ function Dashboard() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-black mb-2">Your Research Library</h1>
-          <p className="text-gray-600">Upload, analyze, and organize your academic papers with AI</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-black mb-2">Your Research Library</h1>
+            <p className="text-gray-600">Upload, analyze, and organize your academic papers with AI</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center gap-2 border border-gray-200"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
         </div>
 
         {/* Tabs */}

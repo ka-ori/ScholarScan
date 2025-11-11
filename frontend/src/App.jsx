@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useAuthStore } from './store/authStore'
 import HomePage from './pages/HomePage'
 import Login from './pages/Login'
@@ -12,7 +13,25 @@ import Security from './pages/Security'
 import Contact from './pages/Contact'
 
 function App() {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const { setHasHydrated } = useAuthStore()
+
+  useEffect(() => {
+    // Trigger hydration check on mount
+    setHasHydrated(true)
+  }, [setHasHydrated])
+
+  // Show loading state while hydrating
+  if (!_hasHydrated) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <Router>

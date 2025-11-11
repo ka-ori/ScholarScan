@@ -54,6 +54,14 @@ router.post('/signup', async (req, res, next) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
 
+    // Log JWT token for development
+    console.log('🔐 JWT Token Generated (Signup):');
+    console.log('━'.repeat(80));
+    console.log(token);
+    console.log('━'.repeat(80));
+    console.log(`📧 New User: ${user.email}`);
+    console.log(`👤 User ID: ${user.id}`);
+
     res.status(201).json({
       message: 'User created successfully',
       token,
@@ -87,6 +95,14 @@ router.post('/login', async (req, res, next) => {
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
     );
+
+    // Log JWT token for development
+    console.log('🔐 JWT Token Generated:');
+    console.log('━'.repeat(80));
+    console.log(token);
+    console.log('━'.repeat(80));
+    console.log(`📧 User: ${user.email}`);
+    console.log(`👤 User ID: ${user.id}`);
 
     res.json({
       message: 'Login successful',
