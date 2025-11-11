@@ -161,13 +161,13 @@ function Login() {
   return (
     <div className="min-h-screen bg-white flex">
       {/* Left Side - Features/Content */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 flex-col justify-between p-12">
-        <div>
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 flex-col justify-center items-center p-12">
+        <div className="max-w-md">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
-            Focus on what matters
+            Start analyzing instantly
           </h2>
           <p className="text-lg text-gray-600 mb-8">
-            Upload your research papers and let AI do the heavy lifting. No more manual note-taking.
+            Join thousands of researchers who use ScholarScan to save time and accelerate their work.
           </p>
           
           <div className="space-y-6">
@@ -178,8 +178,8 @@ function Login() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">AI-Powered Analysis</h3>
-                <p className="text-sm text-gray-600">Instant summaries and insights from your papers</p>
+                <h3 className="font-semibold text-gray-900">Instant Summaries</h3>
+                <p className="text-sm text-gray-600">Get key insights from your papers in seconds</p>
               </div>
             </div>
 
@@ -190,8 +190,8 @@ function Login() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Smart Search</h3>
-                <p className="text-sm text-gray-600">Find exactly what you need across all papers</p>
+                <h3 className="font-semibold text-gray-900">Never Lose Context</h3>
+                <p className="text-sm text-gray-600">All your research in one organized place</p>
               </div>
             </div>
 
@@ -202,15 +202,11 @@ function Login() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900">Organization</h3>
-                <p className="text-sm text-gray-600">Keep all your research in one secure place</p>
+                <h3 className="font-semibold text-gray-900">Save Time</h3>
+                <p className="text-sm text-gray-600">Spend less time reading, more time researching</p>
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="text-sm text-gray-600">
-          © 2025 ScholarScan. All rights reserved.
         </div>
       </div>
 

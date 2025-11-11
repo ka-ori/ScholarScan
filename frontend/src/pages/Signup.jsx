@@ -181,8 +181,8 @@ function Signup() {
   return (
     <div className="min-h-screen bg-white flex">
       {/* Left Side - Features/Content */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 flex-col justify-between p-12">
-        <div>
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 flex-col justify-center items-center p-12">
+        <div className="max-w-md">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
             Start analyzing instantly
           </h2>
@@ -227,10 +227,6 @@ function Signup() {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="text-sm text-gray-600">
-          © 2025 ScholarScan. All rights reserved.
         </div>
       </div>
 
