@@ -7,7 +7,7 @@ import { useAuthStore } from '../store/authStore'
 
 function Dashboard() {
   const navigate = useNavigate()
-  const { logout } = useAuthStore()
+  const { logout, user } = useAuthStore()
   const [activeView, setActiveView] = useState('library')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All Categories')
@@ -98,19 +98,24 @@ function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8 flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-black mb-2">Your Research Library</h1>
-            <p className="text-gray-600">Upload, analyze, and organize your academic papers with AI</p>
+        {/* Welcome Section with User Name */}
+        <div className="mb-8 bg-white rounded-xl border border-gray-200 p-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-gray-600 text-sm mb-1">Welcome back,</p>
+              <h1 className="text-3xl font-bold text-black">
+                {user?.name || 'Researcher'}! 👋
+              </h1>
+              <p className="text-gray-600 mt-2">Upload, analyze, and organize your academic papers with AI</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center gap-2 border border-gray-200"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
           </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center gap-2 border border-gray-200"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
         </div>
 
         {/* Tabs */}
