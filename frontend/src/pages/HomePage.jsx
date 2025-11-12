@@ -385,9 +385,9 @@ function HomePage() {
       </nav>
 
       {/* Hero Section - Add padding-top for navbar */}
-      <div className="relative pt-32 pb-20 px-4">
+      <div className="relative pt-20 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6">
         <div className={`max-w-5xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-black mb-6">
+          <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold text-black mb-4 sm:mb-6">
             AI-Powered Research.
             <br />
             <span ref={instantAnalysisRef} className="relative inline-block">
@@ -404,26 +404,26 @@ function HomePage() {
                 ))}
                 <span ref={periodRef} className="period-dot">.</span>
               </span>
-              <div ref={underlineRef} className="absolute -bottom-4 left-0 right-0 h-2 bg-black"></div>
+              <div ref={underlineRef} className="absolute -bottom-2 sm:-bottom-4 left-0 right-0 h-1 sm:h-2 bg-black"></div>
             </span>
           </h1>
 
-          <p className="text-xl sm:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto">
+          <p className="text-base sm:text-xl lg:text-2xl text-gray-600 mb-8 sm:mb-10 max-w-3xl mx-auto px-2">
             Where your research papers and AI agents capture knowledge, find answers, and automate analysis.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 px-2">
             <Link
               to={isAuthenticated ? "/dashboard" : "/signup"}
-              className="px-8 py-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-all flex items-center justify-center gap-2 shadow-lg"
+              className="px-6 sm:px-8 py-3 sm:py-4 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-all flex items-center justify-center gap-2 shadow-lg text-sm sm:text-base"
             >
               Get ScholarScan free
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 sm:w-5 h-4 sm:h-5" />
             </Link>
             {!isAuthenticated && (
               <Link
                 to="/login"
-                className="px-8 py-4 bg-white text-black rounded-lg font-medium hover:bg-gray-50 border-2 border-black transition-all"
+                className="px-6 sm:px-8 py-3 sm:py-4 bg-white text-black rounded-lg font-medium hover:bg-gray-50 border-2 border-black transition-all text-sm sm:text-base"
               >
                 Request a demo
               </Link>
@@ -431,40 +431,40 @@ function HomePage() {
           </div>
 
           {/* Demo Preview */}
-          <div ref={researchLibRef} className="research-lib mt-16 bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden">
-            <div className="bg-gray-50 px-4 py-3 flex items-center gap-2 border-b-2 border-gray-200">
+          <div ref={researchLibRef} className="research-lib mt-12 sm:mt-16 bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden mx-auto max-w-4xl">
+            <div className="bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 border-b-2 border-gray-200">
               <div className="flex gap-2">
-                <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-                <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-                <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
+                <div className="w-2 sm:w-3 h-2 sm:h-3 bg-gray-300 rounded-full"></div>
+                <div className="w-2 sm:w-3 h-2 sm:h-3 bg-gray-300 rounded-full"></div>
+                <div className="w-2 sm:w-3 h-2 sm:h-3 bg-gray-300 rounded-full"></div>
               </div>
-              <div className="flex-1 ml-8">
-                <div className="bg-white rounded px-3 py-1 text-sm max-w-md border border-gray-200">📄 Research Library</div>
+              <div className="flex-1 ml-4 sm:ml-8">
+                <div className="bg-white rounded px-2 sm:px-3 py-1 text-xs sm:text-sm max-w-md border border-gray-200">📄 Research Library</div>
               </div>
             </div>
             
-            <div className="p-8 bg-white">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
-                      <Brain className="w-5 h-5 text-black" />
+            <div className="p-3 sm:p-8 bg-white">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
+                <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-6 border-2 border-gray-200 shadow-sm">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div className="w-5 sm:w-8 h-5 sm:h-8 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
+                      <Brain className="w-3 sm:w-5 h-3 sm:h-5 text-black" />
                     </div>
-                    <h4 className="font-semibold">Deep Learning Methods</h4>
+                    <h4 className="font-semibold text-xs sm:text-base">Deep Learning Methods</h4>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">Stanford University</p>
-                  <span className="px-2 py-1 bg-gray-100 text-black rounded text-sm border border-gray-200">Analyzed</span>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2">Stanford University</p>
+                  <span className="inline-block px-2 py-1 bg-gray-100 text-black rounded text-xs border border-gray-200">Analyzed</span>
                 </div>
 
-                <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
-                      <Sparkles className="w-5 h-5 text-black" />
+                <div className="bg-white rounded-lg sm:rounded-xl p-3 sm:p-6 border-2 border-gray-200 shadow-sm">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div className="w-5 sm:w-8 h-5 sm:h-8 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
+                      <Sparkles className="w-3 sm:w-5 h-3 sm:h-5 text-black" />
                     </div>
-                    <h4 className="font-semibold">Quantum Computing</h4>
+                    <h4 className="font-semibold text-xs sm:text-base">Quantum Computing</h4>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2">MIT Research Lab</p>
-                  <span className="px-2 py-1 bg-gray-100 text-black rounded text-sm border border-gray-200">Processing</span>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2">MIT Research Lab</p>
+                  <span className="inline-block px-2 py-1 bg-gray-100 text-black rounded text-xs border border-gray-200">Processing</span>
                 </div>
               </div>
             </div>
@@ -474,7 +474,7 @@ function HomePage() {
 
       {/* Trusted By Section */}
       <div ref={trustedByRef} className="py-16 border-y border-gray-200 bg-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
           <p className="text-center text-sm text-gray-500 mb-8 font-medium">TRUSTED BY TEAMS THAT SHIP</p>
           <div className="logos-scroll flex gap-24 items-center" style={{ width: 'max-content' }}>
             {/* First set of logos */}
@@ -506,58 +506,58 @@ function HomePage() {
       </div>
 
       {/* Feature 1 - AI Analysis */}
-      <div ref={feature1Ref} id="features" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      <div ref={feature1Ref} id="features" className="py-16 sm:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-16 items-center">
             <div className="feature-content">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-black rounded-full mb-6 text-sm font-medium border border-gray-200">
-                <Brain className="w-4 h-4" />
+              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 text-black rounded-full mb-4 sm:mb-6 text-xs sm:text-sm font-medium border border-gray-200">
+                <Brain className="w-3 sm:w-4 h-3 sm:h-4" />
                 AI Analysis
               </div>
-              <h2 className="text-5xl font-bold text-black mb-6">
+              <h2 className="text-3xl sm:text-5xl font-bold text-black mb-4 sm:mb-6">
                 You upload the papers.
                 <br />
                 Your AI Agent does the work.
               </h2>
-              <p className="text-xl text-gray-600 mb-8">
+              <p className="text-base sm:text-xl text-gray-600 mb-6 sm:mb-8">
                 Hand off your research analysis. What used to take days now takes minutes.
               </p>
-              <Link to="/signup" className="inline-flex items-center gap-2 text-black font-semibold hover:underline">
-                Learn more <ChevronRight className="w-5 h-5" />
+              <Link to="/signup" className="inline-flex items-center gap-2 text-black font-semibold hover:underline text-sm sm:text-base">
+                Learn more <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5" />
               </Link>
             </div>
-            <div className="feature-visual bg-gray-50 rounded-2xl p-8 shadow-xl border-2 border-gray-200">
-              <div className="bg-white rounded-xl p-6 shadow-lg mb-4 border border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
-                    <Brain className="w-6 h-6 text-white" />
+            <div className="feature-visual bg-gray-50 rounded-2xl p-4 sm:p-8 shadow-xl border-2 border-gray-200">
+              <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg mb-3 sm:mb-4 border border-gray-200">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  <div className="w-8 sm:w-10 h-8 sm:h-10 bg-black rounded-lg flex items-center justify-center">
+                    <Brain className="w-5 sm:w-6 h-5 sm:h-6 text-white" />
                   </div>
                   <div>
-                    <h4 className="font-bold">AI Summary</h4>
-                    <p className="text-sm text-gray-500">Generated in 3.2s</p>
+                    <h4 className="font-bold text-sm sm:text-base">AI Summary</h4>
+                    <p className="text-xs sm:text-sm text-gray-500">Generated in 3.2s</p>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1 sm:space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-black rounded-full"></div>
-                    <p className="text-sm">Abstract extracted</p>
+                    <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-black rounded-full"></div>
+                    <p className="text-xs sm:text-sm">Abstract extracted</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-black rounded-full"></div>
-                    <p className="text-sm">Methodology identified</p>
+                    <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 bg-black rounded-full"></div>
+                    <p className="text-xs sm:text-sm">Methodology identified</p>
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
-                  <TrendingUp className="w-6 h-6 text-black mb-2" />
-                  <p className="text-2xl font-bold">234</p>
-                  <p className="text-sm text-gray-600">Citations found</p>
+              <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                <div className="bg-white rounded-lg p-3 sm:p-4 shadow border border-gray-200">
+                  <TrendingUp className="w-5 sm:w-6 h-5 sm:h-6 text-black mb-1 sm:mb-2" />
+                  <p className="text-lg sm:text-2xl font-bold">234</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Citations found</p>
                 </div>
-                <div className="bg-white rounded-lg p-4 shadow border border-gray-200">
-                  <Users className="w-6 h-6 text-black mb-2" />
-                  <p className="text-2xl font-bold">12</p>
-                  <p className="text-sm text-gray-600">Related papers</p>
+                <div className="bg-white rounded-lg p-3 sm:p-4 shadow border border-gray-200">
+                  <Users className="w-5 sm:w-6 h-5 sm:h-6 text-black mb-1 sm:mb-2" />
+                  <p className="text-lg sm:text-2xl font-bold">12</p>
+                  <p className="text-xs sm:text-sm text-gray-600">Related papers</p>
                 </div>
               </div>
             </div>
@@ -566,13 +566,13 @@ function HomePage() {
       </div>
 
       {/* Feature 2 - Search */}
-      <div ref={feature2Ref} id="search" className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="feature-visual bg-white rounded-2xl p-8 shadow-2xl border-2 border-gray-200">
-              <div className="mb-6">
-                <div className="flex items-center gap-3 mb-4 border-b pb-3">
-                  <Search className="w-6 h-6 text-gray-400" />
+      <div ref={feature2Ref} id="search" className="py-16 sm:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
+          <div className="grid lg:grid-cols-2 gap-8 sm:gap-16 items-center">
+            <div className="feature-visual bg-white rounded-2xl p-4 sm:p-8 shadow-2xl border-2 border-gray-200">
+              <div className="mb-4 sm:mb-6">
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 border-b pb-2 sm:pb-3">
+                  <Search className="w-5 sm:w-6 h-5 sm:h-6 text-gray-400" />
                   <input type="text" placeholder="Search papers..." className="flex-1 text-lg outline-none" defaultValue="machine learning" />
                 </div>
                 <div className="flex gap-2">
@@ -612,7 +612,7 @@ function HomePage() {
 
       {/* Social Proof */}
       <div ref={socialProofRef} id="social-proof" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
           <h2 className="text-5xl font-bold text-center mb-16 text-black">
             Trusted by teams that ship.
           </h2>
@@ -672,7 +672,7 @@ function HomePage() {
 
       {/* Footer */}
       <footer className="bg-white border-t-2 border-gray-200 py-12">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-3 mb-6 md:mb-0">
               <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">

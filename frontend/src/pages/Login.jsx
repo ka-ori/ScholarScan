@@ -159,14 +159,14 @@ function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-white flex flex-col lg:flex-row">
       {/* Left Side - Features/Content */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 flex-col justify-center items-center p-12">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 flex-col justify-center items-center p-8 lg:p-12">
         <div className="max-w-md">
-          <h2 className="text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
             Start analyzing instantly
           </h2>
-          <p className="text-lg text-gray-600 mb-8">
+          <p className="text-base lg:text-lg text-gray-600 mb-8">
             Join thousands of researchers who use ScholarScan to save time and accelerate their work.
           </p>
           
@@ -211,12 +211,12 @@ function Login() {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 py-12 sm:px-12 lg:px-16">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 sm:px-6 py-8 sm:py-12 lg:px-16">
         <div className="w-full max-w-sm mx-auto">
           {/* Header */}
-          <div className="mb-10">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-            <p className="text-gray-600">Sign in to your ScholarScan account</p>
+          <div className="mb-8 sm:mb-10">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+            <p className="text-sm sm:text-base text-gray-600">Sign in to your ScholarScan account</p>
           </div>
 
           {/* Form */}

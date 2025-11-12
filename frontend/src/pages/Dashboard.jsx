@@ -97,32 +97,32 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8 py-6 sm:py-8">
         {/* Welcome Section with User Name */}
-        <div className="mb-8 bg-white rounded-xl border border-gray-200 p-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-gray-600 text-sm mb-1">Welcome back,</p>
-              <h1 className="text-3xl font-bold text-black">
+        <div className="mb-8 bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+            <div className="flex-1">
+              <p className="text-gray-600 text-xs sm:text-sm mb-1">Welcome back,</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-black">
                 {user?.name || 'Researcher'}! 👋
               </h1>
-              <p className="text-gray-600 mt-2">Upload, analyze, and organize your academic papers with AI</p>
+              <p className="text-gray-600 text-sm mt-2">Upload, analyze, and organize your papers with AI</p>
             </div>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center gap-2 border border-gray-200"
+              className="w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center justify-center sm:justify-start gap-2 border border-gray-200"
             >
               <LogOut className="w-4 h-4" />
-              Sign Out
+              <span>Sign Out</span>
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-gray-200">
+        <div className="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
           <button
             onClick={() => setActiveView('upload')}
-            className={`px-6 py-3 font-medium transition-colors relative ${
+            className={`px-4 sm:px-6 py-3 font-medium transition-colors relative whitespace-nowrap text-sm sm:text-base ${
               activeView === 'upload'
                 ? 'text-black border-b-2 border-black'
                 : 'text-gray-500 hover:text-black'
@@ -132,7 +132,7 @@ function Dashboard() {
           </button>
           <button
             onClick={() => setActiveView('library')}
-            className={`px-6 py-3 font-medium transition-colors relative ${
+            className={`px-4 sm:px-6 py-3 font-medium transition-colors relative whitespace-nowrap text-sm sm:text-base ${
               activeView === 'library'
                 ? 'text-black border-b-2 border-black'
                 : 'text-gray-500 hover:text-black'
@@ -144,7 +144,7 @@ function Dashboard() {
 
         {activeView === 'upload' ? (
           /* Upload View */
-          <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-16 text-center">
+          <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-8 sm:p-16 text-center">
             <div className="max-w-md mx-auto">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Upload className="w-8 h-8 text-gray-600" />
