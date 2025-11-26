@@ -1,8 +1,7 @@
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
 /**
  * Categories for research paper classification
@@ -27,63 +26,60 @@ const RESEARCH_CATEGORIES = [
 ];
 
 /**
- * Analyze research paper using OpenAI
+ * Analyze research paper using Google Gemini
  * @param {string} paperText - Full text of the research paper
+ * @param {number} numPages - Total number of pages in the PDF
  * @returns {Promise<Object>} Analysis results
  */
-export async function analyzePaper(paperText) {
+export async function analyzePaper(paperText, numPages = null) {
   try {
-    // Truncate text if too long (OpenAI has token limits)
-    const truncatedText = paperText.substring(0, 15000);
-
+    // Truncate text if too long (Gemini can handle larger context, but we'll be safe)
+    const truncatedText = paperText.substring(0, 30000);
+    
     const prompt = `Analyze the following research paper and extract the following information in JSON format:
-1. title: The title of the paper
-2. authors: The authors (as a comma-separated string, or null if not found)
-3. summary: A concise 3-4 sentence summary of the paper's main contribution and findings
-4. keywords: An array of 5-7 relevant keywords
-5. category: The primary research domain (choose from: ${RESEARCH_CATEGORIES.join(', ')})
-6. publicationYear: Year of publication (number, or null if not found)
-7. journal: Journal or conference name (string, or null if not found)
-8. doi: Digital Object Identifier (string, or null if not found)
-
+          
 Research Paper Text:
 ${truncatedText}
 
+${numPages ? `This paper has ${numPages} total pages.` : ''}
+
 Respond ONLY with valid JSON in this exact format:
 {
-  "title": "...",
-  "authors": "...",
-  "summary": "...",
-  "keywords": ["...", "..."],
-  "category": "...",
-  "publicationYear": 2024,
-  "journal": "...",
-  "doi": "..."
-}`;
+  "title": "Full paper title",
+  "authors": "Author names as comma-separated string or null",
+  "summary": "A comprehensive 8-10 sentence summary covering the problem, methodology, findings, and significance.",
+  "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6", "keyword7"],
+  "category": "Choose from: ${RESEARCH_CATEGORIES.join(', ')}",
+  "publicationYear": 2024 or null,
+  "journal": "Journal/conference name or null",
+  "doi": "DOI string or null",
+  "keyFindings": [
+    {
+      "finding": "A specific finding or claim from the paper",
+      "section": "Which section this came from (e.g., Abstract, Introduction, Methods, Results, Discussion, Conclusion)",
+      "pageNumber": 1,
+      "confidence": "high or medium or low",
+      "textSnippet": "The exact 15-25 word quote from the paper that supports this finding - make sure this is a direct quote that appears in the text"
+    }
+  ]
+}
 
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4-turbo-preview',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert research paper analyzer. Extract information accurately and respond only with valid JSON.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.3,
-      max_tokens: 1000
-    });
-
-    const content = response.choices[0].message.content.trim();
+IMPORTANT for keyFindings:
+- Extract 5-7 key findings
+- For pageNumber: Estimate which page (1-${numPages || 15}) based on section (Abstract/Intro=1-3, Methods=3-5, Results=5-10, Discussion/Conclusion=10-15)
+- For textSnippet: Extract the EXACT quote from the text above that supports this finding (15-25 words)
+- Make sure textSnippet is word-for-word from the paper text`;
+    
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const content = response.text().trim();
+    
+    console.log('Gemini raw response:', content);
     
     // Remove markdown code blocks if present
-    const jsonContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-    
+    const jsonContent = content.replaceAll(/```json\n?/g, '').replaceAll(/```\n?/g, '');
     const analysis = JSON.parse(jsonContent);
-
+    
     // Validate and set defaults
     return {
       title: analysis.title || 'Untitled Paper',
@@ -93,7 +89,8 @@ Respond ONLY with valid JSON in this exact format:
       category: RESEARCH_CATEGORIES.includes(analysis.category) ? analysis.category : 'Other',
       publicationYear: analysis.publicationYear || null,
       journal: analysis.journal || null,
-      doi: analysis.doi || null
+      doi: analysis.doi || null,
+      keyFindings: Array.isArray(analysis.keyFindings) ? analysis.keyFindings : []
     };
   } catch (error) {
     console.error('AI analysis error:', error);
@@ -107,29 +104,8 @@ Respond ONLY with valid JSON in this exact format:
       category: 'Other',
       publicationYear: null,
       journal: null,
-      doi: null
+      doi: null,
+      keyFindings: []
     };
   }
 }
-
-/**
- * Alternative: Use Google Gemini API
- * Uncomment and modify this function if using Gemini instead of OpenAI
- */
-/*
-export async function analyzePaperWithGemini(paperText) {
-  // Implementation for Google Gemini API
-  // Similar structure to analyzePaper above
-}
-*/
-
-/**
- * Alternative: Use Anthropic Claude API
- * Uncomment and modify this function if using Claude instead of OpenAI
- */
-/*
-export async function analyzePaperWithClaude(paperText) {
-  // Implementation for Claude API
-  // Similar structure to analyzePaper above
-}
-*/

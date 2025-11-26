@@ -88,14 +88,7 @@ function Login() {
   }
 
   const handleSubmit = async (e) => {
-    console.log('=== handleSubmit called ===', e)
-    // Prevent ALL default form behavior
-    if (e && typeof e.preventDefault === 'function') {
-      console.log('Calling preventDefault')
-      e.preventDefault()
-      e.stopPropagation()
-    }
-    console.log('After preventDefault, formData:', formData)
+    e.preventDefault()
     
     // Validate all fields
     const newErrors = {}
@@ -114,23 +107,19 @@ function Login() {
     setLoading(true)
 
     try {
-      const { data } = await api.post('/api/auth/login', formData)
-      setLoading(false)
+      const { data } = await api.post('/auth/login', formData)
       login(data.token, data.user)
       notyf.success('Login successful! Redirecting...')
-      // ONLY reset on success
       setFormData({ email: '', password: '' })
       setTouched({})
       setErrors({})
-      setTimeout(() => navigate('/dashboard'), 800)
+      navigate('/dashboard')
     } catch (error) {
-      setLoading(false)
       const errorMessage = error.response?.data?.error || 'Login failed. Please try again.'
       console.error('Login error:', errorMessage)
-      console.log('Form data before error toast:', formData)
-      // IMPORTANT: DO NOT clear formData, touched, or errors on error
-      // User needs to see what they entered and the error message
       notyf.error(errorMessage)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -291,7 +280,7 @@ function Login() {
 
             <button
               type="submit"
-              disabled={loading || errors.email || errors.password}
+              disabled={loading}
               className="w-full py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
             >
               {loading ? 'Signing in...' : 'Sign In'}

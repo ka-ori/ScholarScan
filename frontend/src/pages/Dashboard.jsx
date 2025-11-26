@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
-  FileText, Upload, Brain, Search, Filter, Clock, Tag, LogOut
+  FileText, Upload, Brain, Search, Filter, Clock, Tag, LogOut, Settings
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import api from '../api/axios'
+import toast from 'react-hot-toast'
 
 function Dashboard() {
   const navigate = useNavigate()
@@ -11,87 +13,66 @@ function Dashboard() {
   const [activeView, setActiveView] = useState('library')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All Categories')
+  const [papers, setPapers] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchPapers()
+  }, [selectedCategory])
+
+  const fetchPapers = async (search = searchQuery) => {
+    try {
+      setLoading(true)
+      const params = {}
+      if (selectedCategory !== 'All Categories') {
+        params.category = selectedCategory
+      }
+      if (search) {
+        params.search = search
+      }
+      
+      const { data } = await api.get('/papers', { params })
+      setPapers(data.papers || [])
+    } catch (error) {
+      console.error('Failed to fetch papers:', error)
+      toast.error('Failed to load papers')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value)
+  }
 
   const handleLogout = () => {
     logout()
     navigate('/login')
   }
 
-  // Mock data for demonstration
-  const mockPapers = [
-    {
-      id: 1,
-      title: "Attention Is All You Need: A Comprehensive Study of...",
-      description: "This seminal paper introduces the Transformer architecture, revolutionizing natural language...",
-      category: "Machine Learning",
-      date: "2024-01-15",
-      tags: ["Transformers", "Attention Mechanism", "Neural Networks"],
-      status: "analyzed"
-    },
-    {
-      id: 2,
-      title: "Deep Residual Learning for Image Recognition",
-      description: "ResNet introduces skip connections that enable training of extremely deep neural networks. This breakthrough...",
-      category: "Computer Vision",
-      date: "2024-01-12",
-      tags: ["ResNet", "Deep Learning", "Image Classification"],
-      status: "analyzed"
-    },
-    {
-      id: 3,
-      title: "BERT: Pre-training of Deep Bidirectional Transformers fo...",
-      description: "BERT demonstrates the power of bidirectional pre-training for language representations. By using masked...",
-      category: "Natural Language Processing",
-      date: "2024-01-10",
-      tags: ["BERT", "Pre-training", "Language Models"],
-      status: "analyzing"
-    },
-    {
-      id: 4,
-      title: "Generative Adversarial Networks",
-      description: "GANs present a novel framework for training generative models through an adversarial process...",
-      category: "Machine Learning",
-      date: "2024-01-08",
-      tags: ["GANs", "Generative Models", "Deep Learning"],
-      status: "analyzed"
-    },
-    {
-      id: 5,
-      title: "Reinforcement Learning in Robotics",
-      description: "This comprehensive survey explores the application of reinforcement learning techniques in robotic...",
-      category: "Robotics",
-      date: "2024-01-05",
-      tags: ["Reinforcement Learning", "Robotics", "Control"],
-      status: "analyzed"
-    },
-    {
-      id: 6,
-      title: "Graph Neural Networks: A Review",
-      description: "GNNs extend deep learning to graph-structured data, enabling powerful representations for molecular...",
-      category: "Data Science",
-      date: "2024-01-03",
-      tags: ["GNNs", "Graph Theory", "Neural Networks"],
-      status: "analyzing"
-    }
-  ]
-
   const categories = [
-    "Machine Learning",
-    "Computer Vision", 
-    "Natural Language Processing",
-    "Robotics",
-    "Data Science"
+    'Computer Science',
+    'Artificial Intelligence',
+    'Machine Learning',
+    'Natural Language Processing',
+    'Computer Vision',
+    'Physics',
+    'Mathematics',
+    'Other'
   ]
 
   const getCategoryColor = (category) => {
     const colors = {
-      "Machine Learning": "bg-blue-500",
-      "Computer Vision": "bg-purple-500",
-      "Natural Language Processing": "bg-green-500",
-      "Robotics": "bg-orange-500",
-      "Data Science": "bg-pink-500"
+      'Computer Science': 'bg-blue-500',
+      'Artificial Intelligence': 'bg-purple-500',
+      'Machine Learning': 'bg-indigo-500',
+      'Natural Language Processing': 'bg-green-500',
+      'Computer Vision': 'bg-pink-500',
+      'Physics': 'bg-yellow-500',
+      'Mathematics': 'bg-red-500',
+      'Other': 'bg-gray-500'
     }
-    return colors[category] || "bg-gray-500"
+    return colors[category] || 'bg-gray-500'
   }
 
   return (
@@ -108,20 +89,29 @@ function Dashboard() {
               </h1>
               <p className="text-gray-600 text-sm mt-2">Upload, analyze, and organize your papers with AI</p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center justify-center sm:justify-start gap-2 border border-gray-200"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate('/settings')}
+                className="w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center justify-center sm:justify-start gap-2 border border-gray-200"
+              >
+                <Settings className="w-4 h-4" />
+                <span>Settings</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center justify-center sm:justify-start gap-2 border border-gray-200"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
           <button
-            onClick={() => setActiveView('upload')}
+            onClick={() => navigate('/upload')}
             className={`px-4 sm:px-6 py-3 font-medium transition-colors relative whitespace-nowrap text-sm sm:text-base ${
               activeView === 'upload'
                 ? 'text-black border-b-2 border-black'
@@ -138,28 +128,13 @@ function Dashboard() {
                 : 'text-gray-500 hover:text-black'
             }`}
           >
-            My Library (6)
+            My Library ({papers.length})
           </button>
         </div>
 
         {activeView === 'upload' ? (
           /* Upload View */
-          <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-8 sm:p-16 text-center">
-            <div className="max-w-md mx-auto">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Upload className="w-8 h-8 text-gray-600" />
-              </div>
-              <h3 className="text-xl font-bold text-black mb-3">Upload Research Paper</h3>
-              <p className="text-gray-600 mb-6">Drag and drop your PDF file here, or click to browse</p>
-              <button className="px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors">
-                Browse Files
-              </button>
-              <p className="text-sm text-gray-500 mt-4">
-                <FileText className="w-4 h-4 inline mr-1" />
-                PDF files only, max 50MB
-              </p>
-            </div>
-          </div>
+          navigate('/upload')
         ) : (
           /* Library View */
           <div>
@@ -171,7 +146,11 @@ function Dashboard() {
                   type="text"
                   placeholder="Search papers by title, keywords, or summary..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value)
+                    // Fetch papers with search query
+                    fetchPapers(e.target.value)
+                  }}
                   className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
               </div>
@@ -199,75 +178,88 @@ function Dashboard() {
             </div>
 
             {/* Papers Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockPapers.map((paper) => (
-                <div
-                  key={paper.id}
-                  className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => navigate(`/paper/${paper.id}`)}
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+                  <p className="text-gray-600">Loading your papers...</p>
+                </div>
+              </div>
+            ) : papers.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No papers yet</h3>
+                <p className="text-gray-600 mb-6">Upload your first research paper to get started with AI analysis</p>
+                <button 
+                  onClick={() => navigate('/upload')}
+                  className="px-6 py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
                 >
-                  {/* Category Badge */}
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className={`w-10 h-10 ${getCategoryColor(paper.category)} rounded-lg flex items-center justify-center`}>
-                      <FileText className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Clock className="w-4 h-4" />
-                      {new Date(paper.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </div>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-lg font-bold text-black mb-2 line-clamp-2">
-                    {paper.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                    {paper.description}
-                  </p>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {paper.tags.slice(0, 2).map((tag, idx) => (
-                      <span
-                        key={idx}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200"
-                      >
-                        <Tag className="w-3 h-3" />
-                        {tag}
-                      </span>
-                    ))}
-                    {paper.tags.length > 2 && (
-                      <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200">
-                        +{paper.tags.length - 2} more
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                    <span className="text-sm text-gray-600">{paper.category}</span>
-                    <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                      View Details
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Status Badge */}
-                  {paper.status === 'analyzing' && (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <div className="flex items-center gap-2">
-                        <Brain className="w-4 h-4 text-gray-500 animate-pulse" />
-                        <span className="text-xs text-gray-500 font-medium">AI Analysis in progress...</span>
+                  Upload Paper
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {papers.map((paper) => (
+                  <div
+                    key={paper.id}
+                    className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => navigate(`/paper/${paper.id}`)}
+                  >
+                    {/* Category Badge */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className={`w-10 h-10 ${getCategoryColor(paper.category)} rounded-lg flex items-center justify-center`}>
+                        <FileText className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Clock className="w-4 h-4" />
+                        {new Date(paper.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
+
+                    {/* Title */}
+                    <h3 className="text-lg font-bold text-black mb-2 line-clamp-2">
+                      {paper.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                      {typeof paper.summary === 'string' && paper.summary.startsWith('{') 
+                        ? JSON.parse(paper.summary).summary 
+                        : paper.summary}
+                    </p>
+
+                    {/* Keywords/Tags */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {(paper.keywords || []).slice(0, 2).map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200"
+                        >
+                          <Tag className="w-3 h-3" />
+                          {tag}
+                        </span>
+                      ))}
+                      {(paper.keywords || []).length > 2 && (
+                        <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200">
+                          +{paper.keywords.length - 2} more
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <span className="text-sm text-gray-600">{paper.category}</span>
+                      <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
+                        View Details
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </main>

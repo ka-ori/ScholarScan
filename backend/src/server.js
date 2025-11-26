@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import fileUpload from 'express-fileupload';
 import authRoutes from './routes/auth.js';
+import paperRoutes from './routes/papers.js';
+import userRoutes from './routes/user.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -17,6 +20,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
 
 // Routes
 app.get('/', (req, res) => {
@@ -28,6 +32,8 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/papers', paperRoutes);
+app.use('/api/user', userRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

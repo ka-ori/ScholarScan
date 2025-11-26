@@ -46,16 +46,23 @@ function Upload() {
   }
 
   const handleUpload = async () => {
+    console.log('🚀 handleUpload called')
+    console.log('📁 File state:', file)
+    console.log('⏳ Uploading state:', uploading)
+    
     if (!file) {
+      console.log('❌ No file selected')
       toast.error('Please select a file')
       return
     }
 
+    console.log('✅ File validation passed, starting upload...')
     setUploading(true)
     setProgress(0)
 
     const formData = new FormData()
     formData.append('pdf', file)
+    console.log('📦 FormData created:', formData.get('pdf'))
 
     try {
       // Simulate progress
@@ -69,7 +76,7 @@ function Upload() {
         })
       }, 500)
 
-      const { data } = await api.post('/papers/upload', formData, {
+      const { data } = await api.post('/papers', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -80,12 +87,19 @@ function Upload() {
 
       toast.success('Paper uploaded and analyzed successfully!')
       setTimeout(() => {
+        console.log('🔄 Navigating to paper detail:', data.paper.id)
         navigate(`/paper/${data.paper.id}`)
       }, 1000)
     } catch (error) {
+      console.error('❌ Upload error:', error)
+      console.error('Error response:', error.response)
+      console.error('Error message:', error.message)
+      console.error('Error status:', error.response?.status)
+      console.error('Error data:', error.response?.data)
       setProgress(0)
       toast.error(error.response?.data?.error || 'Upload failed')
     } finally {
+      console.log('🏁 Upload process finished, resetting uploading state')
       setUploading(false)
     }
   }
@@ -94,6 +108,12 @@ function Upload() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="mb-4 text-gray-600 hover:text-black flex items-center gap-2 transition-colors"
+        >
+          ← Back to Dashboard
+        </button>
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Upload Research Paper</h1>
         <p className="text-gray-600">
           Upload a PDF file and let AI analyze and summarize it for you

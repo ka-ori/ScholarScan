@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
+import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './store/authStore'
 import HomePage from './pages/HomePage'
 import Login from './pages/Login'
@@ -7,6 +8,8 @@ import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Upload from './pages/Upload'
 import PaperDetail from './pages/PaperDetail'
+import EditPaper from './pages/EditPaper'
+import Settings from './pages/Settings'
 import About from './pages/About'
 import Pricing from './pages/Pricing'
 import Security from './pages/Security'
@@ -34,8 +37,10 @@ function App() {
   }
 
   return (
-    <Router>
-      <Routes>
+    <>
+      <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+      <Router>
+        <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/about" element={<About />} />
         <Route path="/pricing" element={<Pricing />} />
@@ -55,8 +60,17 @@ function App() {
           path="/paper/:id"
           element={isAuthenticated ? <PaperDetail /> : <Navigate to="/login" />}
         />
-      </Routes>
-    </Router>
+        <Route
+          path="/paper/:id/edit"
+          element={isAuthenticated ? <EditPaper /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/settings"
+          element={isAuthenticated ? <Settings /> : <Navigate to="/login" />}
+        />
+        </Routes>
+      </Router>
+    </>
   )
 }
 

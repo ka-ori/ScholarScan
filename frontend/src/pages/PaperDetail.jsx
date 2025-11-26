@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Calendar, FileText, Tag, Edit2, Save, X } from 'lucide-react'
+import { 
+  ArrowLeft, Calendar, FileText, Edit2, Save, X, 
+  ExternalLink, User, ChevronRight, Eye
+} from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../api/axios'
+import PDFViewer from '../components/PDFViewer'
 
 function PaperDetail() {
   const { id } = useParams()
@@ -11,32 +15,43 @@ function PaperDetail() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState({})
+  const [keyFindings, setKeyFindings] = useState([])
+  const [summaryText, setSummaryText] = useState('')
+  
+  const [showPdfViewer, setShowPdfViewer] = useState(false)
+  const [pdfPageNumber, setPdfPageNumber] = useState(1)
+  const [highlightText, setHighlightText] = useState('')
 
   useEffect(() => {
-    fetchPaper()
-  }, [id])
-
-  const fetchPaper = async () => {
-    try {
-      const { data } = await api.get(`/papers/${id}`)
-      setPaper(data.paper)
-      setFormData({
-        title: data.paper.title,
-        authors: data.paper.authors || '',
-        summary: data.paper.summary,
-        keywords: data.paper.keywords.join(', '),
-        category: data.paper.category,
-        publicationYear: data.paper.publicationYear || '',
-        journal: data.paper.journal || '',
-        doi: data.paper.doi || '',
-      })
-    } catch (error) {
-      toast.error('Failed to fetch paper details')
-      navigate('/dashboard')
-    } finally {
-      setLoading(false)
+    const fetchPaper = async () => {
+      try {
+        const { data } = await api.get(`/papers/${id}`)
+        const summary = data.paper.summaryText || data.paper.summary
+        const findings = data.paper.keyFindings || []
+        
+        setPaper(data.paper)
+        setSummaryText(summary)
+        setKeyFindings(findings)
+        
+        setFormData({
+          title: data.paper.title,
+          authors: data.paper.authors || '',
+          summary: summary,
+          keywords: data.paper.keywords.join(', '),
+          category: data.paper.category,
+          publicationYear: data.paper.publicationYear || '',
+          journal: data.paper.journal || '',
+          doi: data.paper.doi || '',
+        })
+      } catch (error) {
+        toast.error('Failed to fetch paper details')
+        navigate('/dashboard')
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+    fetchPaper()
+  }, [id, navigate])
 
   const handleSave = async () => {
     try {
@@ -45,7 +60,6 @@ function PaperDetail() {
         keywords: formData.keywords.split(',').map((k) => k.trim()).filter(Boolean),
         publicationYear: formData.publicationYear ? parseInt(formData.publicationYear) : null,
       }
-
       const { data } = await api.put(`/papers/${id}`, updateData)
       setPaper(data.paper)
       setEditing(false)
@@ -59,7 +73,7 @@ function PaperDetail() {
     setFormData({
       title: paper.title,
       authors: paper.authors || '',
-      summary: paper.summary,
+      summary: summaryText,
       keywords: paper.keywords.join(', '),
       category: paper.category,
       publicationYear: paper.publicationYear || '',
@@ -69,256 +83,256 @@ function PaperDetail() {
     setEditing(false)
   }
 
+  const handleFindingClick = (finding) => {
+    setPdfPageNumber(finding.pageNumber || 1)
+    setHighlightText(finding.textSnippet || finding.finding)
+    setShowPdfViewer(true)
+  }
+
   const categories = [
-    'Computer Science',
-    'Artificial Intelligence',
-    'Machine Learning',
-    'Natural Language Processing',
-    'Computer Vision',
-    'Bioinformatics',
-    'Physics',
-    'Mathematics',
-    'Chemistry',
-    'Biology',
-    'Medicine',
-    'Engineering',
-    'Social Sciences',
-    'Economics',
-    'Psychology',
-    'Other',
+    'Computer Science', 'Artificial Intelligence', 'Machine Learning',
+    'Natural Language Processing', 'Computer Vision', 'Bioinformatics',
+    'Physics', 'Mathematics', 'Chemistry', 'Biology', 'Medicine',
+    'Engineering', 'Social Sciences', 'Economics', 'Psychology', 'Other',
   ]
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-          <p className="mt-4 text-gray-600">Loading paper...</p>
-        </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-black border-t-transparent"></div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          Back to Dashboard
-        </button>
-        <div className="flex gap-2">
-          {!editing ? (
-            <button
-              onClick={() => setEditing(true)}
-              className="flex items-center gap-2 btn-primary"
-            >
-              <Edit2 className="h-4 w-4" />
-              Edit
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={handleCancel}
-                className="flex items-center gap-2 btn-secondary"
-              >
-                <X className="h-4 w-4" />
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="flex items-center gap-2 btn-primary"
-              >
-                <Save className="h-4 w-4" />
-                Save
-              </button>
-            </>
-          )}
-        </div>
-      </div>
+    <div className="min-h-screen bg-white">
+      {showPdfViewer && (
+        <PDFViewer
+          pdfUrl={`${import.meta.env.VITE_API_URL}/papers/${id}/pdf`}
+          pageNumber={pdfPageNumber}
+          highlightText={highlightText}
+          onClose={() => setShowPdfViewer(false)}
+        />
+      )}
 
-      {/* Paper Details */}
-      <div className="card">
-        {/* Category and Date */}
-        <div className="flex items-center gap-4 mb-4">
-          {editing ? (
-            <select
-              className="input-field"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+      <div className="max-w-5xl mx-auto px-6 py-12">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-12">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-2 text-gray-500 hover:text-black transition-colors text-sm"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setPdfPageNumber(1)
+                setHighlightText('')
+                setShowPdfViewer(true)
+              }}
+              className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:border-black transition-colors"
             >
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <span className="px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full font-medium">
-              {paper.category}
-            </span>
-          )}
-          <div className="flex items-center gap-2 text-sm text-gray-500">
-            <Calendar className="h-4 w-4" />
-            Uploaded {new Date(paper.uploadedAt).toLocaleDateString()}
+              <Eye className="h-4 w-4" />
+              View PDF
+            </button>
+            {!editing ? (
+              <button
+                onClick={() => setEditing(true)}
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                <Edit2 className="h-4 w-4" />
+                Edit
+              </button>
+            ) : (
+              <>
+                <button onClick={handleCancel} className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:border-black transition-colors">
+                  <X className="h-4 w-4" />
+                  Cancel
+                </button>
+                <button onClick={handleSave} className="flex items-center gap-2 px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                  <Save className="h-4 w-4" />
+                  Save
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Title */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Title
-          </label>
+        {/* Title Section */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-4">
+            {editing ? (
+              <select
+                className="text-xs px-3 py-1 border border-gray-200 rounded-full"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              >
+                {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+              </select>
+            ) : (
+              <span className="text-xs px-3 py-1 bg-black text-white rounded-full">{paper.category}</span>
+            )}
+            <span className="text-xs text-gray-400">
+              {new Date(paper.uploadedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+            </span>
+          </div>
+
           {editing ? (
             <input
               type="text"
-              className="input-field"
+              className="w-full text-3xl font-semibold border-b border-gray-200 pb-2 focus:outline-none focus:border-black"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             />
           ) : (
-            <h1 className="text-3xl font-bold text-gray-900">{paper.title}</h1>
+            <h1 className="text-3xl font-semibold text-black leading-tight">{paper.title}</h1>
           )}
-        </div>
 
-        {/* Authors */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Authors
-          </label>
-          {editing ? (
-            <input
-              type="text"
-              className="input-field"
-              placeholder="John Doe, Jane Smith"
-              value={formData.authors}
-              onChange={(e) => setFormData({ ...formData, authors: e.target.value })}
-            />
-          ) : (
-            <p className="text-gray-600">{paper.authors || 'Not specified'}</p>
-          )}
-        </div>
-
-        {/* Publication Info */}
-        <div className="grid md:grid-cols-3 gap-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Publication Year
-            </label>
-            {editing ? (
-              <input
-                type="number"
-                className="input-field"
-                placeholder="2024"
-                value={formData.publicationYear}
-                onChange={(e) => setFormData({ ...formData, publicationYear: e.target.value })}
-              />
-            ) : (
-              <p className="text-gray-600">{paper.publicationYear || 'N/A'}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Journal/Conference
-            </label>
-            {editing ? (
-              <input
-                type="text"
-                className="input-field"
-                placeholder="Nature"
-                value={formData.journal}
-                onChange={(e) => setFormData({ ...formData, journal: e.target.value })}
-              />
-            ) : (
-              <p className="text-gray-600">{paper.journal || 'N/A'}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              DOI
-            </label>
-            {editing ? (
-              <input
-                type="text"
-                className="input-field"
-                placeholder="10.1000/xyz123"
-                value={formData.doi}
-                onChange={(e) => setFormData({ ...formData, doi: e.target.value })}
-              />
-            ) : (
-              <p className="text-gray-600">{paper.doi || 'N/A'}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Summary */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Summary
-          </label>
-          {editing ? (
-            <textarea
-              className="input-field"
-              rows="6"
-              value={formData.summary}
-              onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-            />
-          ) : (
-            <p className="text-gray-700 leading-relaxed">{paper.summary}</p>
-          )}
-        </div>
-
-        {/* Keywords */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Keywords
-          </label>
-          {editing ? (
-            <input
-              type="text"
-              className="input-field"
-              placeholder="machine learning, AI, neural networks"
-              value={formData.keywords}
-              onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-            />
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {paper.keywords.map((keyword, idx) => (
-                <span
-                  key={idx}
-                  className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full"
-                >
-                  <Tag className="h-3 w-3" />
-                  {keyword}
-                </span>
-              ))}
+          <div className="flex items-center gap-6 mt-4 text-sm text-gray-500">
+            <div className="flex items-center gap-1.5">
+              <User className="h-4 w-4" />
+              {editing ? (
+                <input
+                  type="text"
+                  className="border-b border-gray-200 focus:outline-none focus:border-black bg-transparent"
+                  placeholder="Authors"
+                  value={formData.authors}
+                  onChange={(e) => setFormData({ ...formData, authors: e.target.value })}
+                />
+              ) : (
+                <span>{paper.authors || 'Unknown authors'}</span>
+              )}
             </div>
-          )}
-        </div>
-
-        {/* File Info */}
-        <div className="border-t pt-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">File Information</h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="flex items-center gap-3">
-              <FileText className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="text-sm text-gray-600">Filename</p>
-                <p className="font-medium text-gray-900">{paper.fileName}</p>
+            {paper.publicationYear && (
+              <div className="flex items-center gap-1.5">
+                <Calendar className="h-4 w-4" />
+                <span>{paper.publicationYear}</span>
               </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <FileText className="h-5 w-5 text-gray-400" />
-              <div>
-                <p className="text-sm text-gray-600">File Size</p>
-                <p className="font-medium text-gray-900">
+            )}
+            {paper.doi && (
+              <a 
+                href={`https://doi.org/${paper.doi}`} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 hover:text-black transition-colors"
+              >
+                <ExternalLink className="h-4 w-4" />
+                <span>DOI</span>
+              </a>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-10">
+            {/* Summary */}
+            <section>
+              <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Summary</h2>
+              {editing ? (
+                <textarea
+                  className="w-full border border-gray-200 rounded-lg p-4 focus:outline-none focus:border-black text-gray-700 leading-relaxed"
+                  rows="6"
+                  value={formData.summary}
+                  onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                />
+              ) : (
+                <p className="text-gray-700 leading-relaxed">{summaryText}</p>
+              )}
+            </section>
+
+            {/* Key Findings */}
+            {keyFindings.length > 0 && (
+              <section>
+                <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">
+                  Key Findings ({keyFindings.length})
+                </h2>
+                <div className="space-y-3">
+                  {keyFindings.map((finding, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => handleFindingClick(finding)}
+                      className="group p-4 border border-gray-100 rounded-lg hover:border-gray-300 transition-all cursor-pointer"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xs text-gray-400 uppercase tracking-wide">
+                              {finding.section || 'Finding'}
+                            </span>
+                            {finding.pageNumber && (
+                              <span className="text-xs text-gray-300">p. {finding.pageNumber}</span>
+                            )}
+                          </div>
+                          <p className="text-gray-800 text-sm">{finding.finding}</p>
+                          {finding.textSnippet && (
+                            <p className="text-xs text-gray-400 mt-2 italic border-l-2 border-gray-200 pl-3">
+                              {finding.textSnippet}
+                            </p>
+                          )}
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-black transition-colors flex-shrink-0 mt-1" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-8">
+            {/* Keywords */}
+            <section>
+              <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Keywords</h2>
+              {editing ? (
+                <input
+                  type="text"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-black"
+                  placeholder="keyword1, keyword2"
+                  value={formData.keywords}
+                  onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
+                />
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {paper.keywords.map((keyword, idx) => (
+                    <span key={idx} className="text-xs px-3 py-1 bg-gray-100 text-gray-600 rounded-full">
+                      {keyword}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* File Info */}
+            <section>
+              <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">File</h2>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <FileText className="h-4 w-4 text-gray-400" />
+                  <span className="truncate" title={paper.fileName}>{paper.fileName}</span>
+                </div>
+                <div className="text-gray-400 text-xs">
                   {(paper.fileSize / 1024 / 1024).toFixed(2)} MB
-                </p>
+                </div>
               </div>
-            </div>
+            </section>
+
+            {/* Stats */}
+            <section className="pt-6 border-t border-gray-100">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-2xl font-semibold text-black">{keyFindings.length}</div>
+                  <div className="text-xs text-gray-400">Findings</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-semibold text-black">{paper.keywords.length}</div>
+                  <div className="text-xs text-gray-400">Keywords</div>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </div>
