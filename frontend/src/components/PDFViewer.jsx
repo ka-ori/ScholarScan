@@ -44,7 +44,15 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         setPdfBlobUrl(blobUrl)
       } catch (err) {
         console.error('Failed to fetch PDF:', err)
-        setError('Failed to load PDF. Please try again.')
+        
+        // Check if it's a cloud deployment limitation
+        if (err.response?.status === 501) {
+          setError('PDF viewing is not available in the cloud deployment. Please run the backend locally to view PDF files.')
+        } else if (err.response?.status === 404) {
+          setError('PDF file not found.')
+        } else {
+          setError('Failed to load PDF. Please try again.')
+        }
         setLoading(false)
       }
     }
@@ -344,8 +352,16 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         )}
 
         {error && (
-          <div className="flex items-center justify-center h-full">
-            <p className="text-red-400">{error}</p>
+          <div className="flex flex-col items-center justify-center h-full text-center px-8">
+            <AlertCircle className="w-16 h-16 text-yellow-500 mb-4" />
+            <p className="text-white text-lg font-medium mb-2">PDF Not Available</p>
+            <p className="text-gray-400 max-w-md mb-6">{error}</p>
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-white text-black rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              Close Viewer
+            </button>
           </div>
         )}
 

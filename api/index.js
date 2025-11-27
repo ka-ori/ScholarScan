@@ -279,6 +279,30 @@ app.delete('/api/papers/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// PDF viewing - not available in cloud deployment
+app.get('/api/papers/:id/pdf', authenticateToken, async (req, res) => {
+  try {
+    const paper = await prisma.paper.findFirst({
+      where: { id: req.params.id, userId: req.user.userId }
+    });
+    
+    if (!paper) {
+      return res.status(404).json({ error: 'Paper not found' });
+    }
+    
+    // PDFs are stored locally, not available in cloud deployment
+    res.status(501).json({ 
+      error: 'PDF viewing not available in cloud deployment',
+      message: 'PDF files are stored on local server. Please run the backend locally to view PDFs.',
+      hint: 'Run: cd backend && npm run dev',
+      fileName: paper.fileName
+    });
+  } catch (error) {
+    console.error('Get PDF error:', error);
+    res.status(500).json({ error: 'Failed to fetch PDF' });
+  }
+});
+
 // User routes
 app.get('/api/user', authenticateToken, async (req, res) => {
   try {
