@@ -26,17 +26,47 @@ function PaperDetail() {
     const fetchPaper = async () => {
       try {
         const { data } = await api.get(`/papers/${id}`)
-        const summary = data.paper.summaryText || data.paper.summary
-        const findings = data.paper.keyFindings || []
+        
+        // Parse the summary field - it might be a JSON string or already parsed
+        let parsedSummary = ''
+        let parsedFindings = []
+        
+        const rawSummary = data.paper.summary || ''
+        
+        // Try to parse if it looks like JSON
+        if (typeof rawSummary === 'string' && rawSummary.trim().startsWith('{')) {
+          try {
+            const parsed = JSON.parse(rawSummary)
+            parsedSummary = parsed.summary || rawSummary
+            parsedFindings = parsed.keyFindings || []
+          } catch {
+            // Not valid JSON, use as-is
+            parsedSummary = rawSummary
+          }
+        } else if (typeof rawSummary === 'object' && rawSummary !== null) {
+          // Already an object
+          parsedSummary = rawSummary.summary || ''
+          parsedFindings = rawSummary.keyFindings || []
+        } else {
+          parsedSummary = rawSummary
+        }
+        
+        // Use explicit fields if they exist
+        if (data.paper.summaryText) {
+          parsedSummary = data.paper.summaryText
+        }
+        if (data.paper.keyFindings && Array.isArray(data.paper.keyFindings) && data.paper.keyFindings.length > 0) {
+          parsedFindings = data.paper.keyFindings
+        }
         
         setPaper(data.paper)
-        setSummaryText(summary)
-        setKeyFindings(findings)
+        setSummaryText(parsedSummary)
+        setKeyFindings(parsedFindings)
         
         setFormData({
           title: data.paper.title,
           authors: data.paper.authors || '',
-          summary: summary,
+          summary: parsedSummary,
           keywords: data.paper.keywords.join(', '),
           category: data.paper.category,
           publicationYear: data.paper.publicationYear || '',

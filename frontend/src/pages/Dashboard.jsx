@@ -7,6 +7,23 @@ import { useAuthStore } from '../store/authStore'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 
+// Helper to parse summary from JSON string
+const parseSummary = (summary) => {
+  if (!summary) return ''
+  if (typeof summary === 'string' && summary.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(summary)
+      return parsed.summary || summary
+    } catch {
+      return summary
+    }
+  }
+  if (typeof summary === 'object' && summary.summary) {
+    return summary.summary
+  }
+  return summary
+}
+
 function Dashboard() {
   const navigate = useNavigate()
   const { logout, user } = useAuthStore()
@@ -223,9 +240,7 @@ function Dashboard() {
 
                     {/* Description */}
                     <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                      {typeof paper.summary === 'string' && paper.summary.startsWith('{') 
-                        ? JSON.parse(paper.summary).summary 
-                        : paper.summary}
+                      {parseSummary(paper.summary)}
                     </p>
 
                     {/* Keywords/Tags */}
