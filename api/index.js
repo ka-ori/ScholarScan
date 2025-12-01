@@ -5,9 +5,99 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { put } = require('@vercel/blob');
 const Busboy = require('busboy');
+const pdfParse = require('pdf-parse');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 const prisma = new PrismaClient();
+
+// Initialize Gemini AI if API key is available
+let genAI = null;
+if (process.env.GEMINI_API_KEY) {
+  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+}
+
+// AI Analysis function
+async function analyzePaper(text) {
+  if (!genAI) {
+    return {
+      title: 'Untitled Paper',
+      authors: null,
+      summary: 'AI analysis not available. Please add GEMINI_API_KEY to environment variables.',
+      keywords: [],
+      keyFindings: [],
+      category: 'Other',
+      publicationYear: null,
+      journal: null,
+      doi: null
+    };
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    // Truncate text if too long
+    const maxChars = 30000;
+    const truncatedText = text.length > maxChars ? text.substring(0, maxChars) + '...' : text;
+
+    const prompt = `Analyze this research paper and extract the following information in JSON format:
+{
+  "title": "exact title of the paper",
+  "authors": "comma-separated list of authors",
+  "summary": "comprehensive 3-4 paragraph summary of the paper's main contributions, methodology, and findings",
+  "keywords": ["keyword1", "keyword2", ...] (5-8 relevant keywords),
+  "keyFindings": [
+    {
+      "finding": "key finding or result",
+      "section": "which section this is from",
+      "pageNumber": estimated page number,
+      "confidence": "high/medium/low",
+      "textSnippet": "relevant quote from the paper"
+    }
+  ] (3-5 key findings),
+  "category": "one of: Computer Science, Artificial Intelligence, Machine Learning, Natural Language Processing, Computer Vision, Bioinformatics, Physics, Mathematics, Chemistry, Biology, Medicine, Engineering, Social Sciences, Economics, Psychology, Other",
+  "publicationYear": year as number or null,
+  "journal": "journal or conference name if mentioned",
+  "doi": "DOI if found in the text"
+}
+
+Paper text:
+${truncatedText}
+
+Return ONLY valid JSON, no markdown or explanation.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let jsonText = response.text().trim();
+    
+    // Clean up response
+    if (jsonText.startsWith('```json')) {
+      jsonText = jsonText.slice(7);
+    }
+    if (jsonText.startsWith('```')) {
+      jsonText = jsonText.slice(3);
+    }
+    if (jsonText.endsWith('```')) {
+      jsonText = jsonText.slice(0, -3);
+    }
+    
+    const analysis = JSON.parse(jsonText.trim());
+    return analysis;
+  } catch (error) {
+    console.error('AI analysis error:', error);
+    return {
+      title: 'Untitled Paper',
+      authors: null,
+      summary: 'AI analysis failed. The paper has been uploaded successfully.',
+      keywords: [],
+      keyFindings: [],
+      category: 'Other',
+      publicationYear: null,
+      journal: null,
+      doi: null
+    };
+  }
+}
 
 // Middleware
 app.use(cors());
@@ -293,31 +383,66 @@ app.post('/api/papers', authenticateToken, async (req, res) => {
 
       console.log('PDF uploaded to Vercel Blob:', blob.url);
 
-      // Create paper in database with minimal data (AI analysis not available in serverless)
+      // Extract text from PDF and analyze with AI
+      let analysis = {
+        title: name.replace('.pdf', '').replace(/_/g, ' '),
+        authors: null,
+        summary: 'Paper uploaded successfully.',
+        keywords: [],
+        keyFindings: [],
+        category: 'Other',
+        publicationYear: null,
+        journal: null,
+        doi: null
+      };
+
+      try {
+        console.log('Extracting text from PDF...');
+        const pdfData = await pdfParse(buffer);
+        const extractedText = pdfData.text;
+        console.log('Extracted text length:', extractedText.length);
+
+        if (extractedText && extractedText.length > 100) {
+          console.log('Running AI analysis...');
+          analysis = await analyzePaper(extractedText);
+          console.log('AI analysis complete:', analysis.title);
+        }
+      } catch (pdfError) {
+        console.error('PDF extraction/analysis error:', pdfError.message);
+        // Continue with default values
+      }
+
+      // Store summary with key findings as JSON
+      const summaryWithFindings = JSON.stringify({
+        summary: analysis.summary,
+        keyFindings: analysis.keyFindings || []
+      });
+
+      // Create paper in database
       const paper = await prisma.paper.create({
         data: {
-          title: name.replace('.pdf', '').replace(/_/g, ' '),
-          authors: null,
-          summary: 'Paper uploaded. AI analysis is only available when using the local backend server.',
-          keywords: [],
-          category: 'Other',
+          title: analysis.title || name.replace('.pdf', '').replace(/_/g, ' '),
+          authors: analysis.authors || null,
+          summary: summaryWithFindings,
+          keywords: analysis.keywords || [],
+          category: analysis.category || 'Other',
           fileName: name,
           filePath: blob.pathname,
           fileSize: size,
-          publicationYear: null,
-          journal: null,
-          doi: null,
+          publicationYear: analysis.publicationYear || null,
+          journal: analysis.journal || null,
+          doi: analysis.doi || null,
           blobUrl: blob.url,
           userId: req.user.userId
         }
       });
 
       return res.status(201).json({
-        message: 'Paper uploaded successfully. Note: AI analysis is only available with local backend.',
+        message: 'Paper uploaded and analyzed successfully!',
         paper: {
           ...paper,
-          summaryText: paper.summary,
-          keyFindings: []
+          summaryText: analysis.summary,
+          keyFindings: analysis.keyFindings || []
         }
       });
       

@@ -6,6 +6,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^5.7.1",
     "@vercel/blob": "^2.0.0",
     "bcryptjs": "^2.4.3",
@@ -13,6 +14,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
+    "pdf-parse": "^2.4.5",
     "prisma": "^5.7.1"
   }
 }
