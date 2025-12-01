@@ -301,7 +301,31 @@ const authenticateToken = (req, res, next) => {
 // Papers routes
 app.get('/api/papers', authenticateToken, async (req, res) => {
   try {
-    const { search, category, page = 1, limit = 10 } = req.query;
+    const { 
+      category, 
+      search, 
+      sortBy = 'uploadedAt', 
+      order = 'desc',
+      sort, // Support 'sort' param from requirement
+      page = 1,
+      limit = 10
+    } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Handle sort alias
+    let finalSortBy = sortBy;
+    let finalOrder = order;
+
+    if (sort === 'date') {
+      finalSortBy = 'uploadedAt';
+      finalOrder = 'desc';
+    } else if (sort === 'title') {
+      finalSortBy = 'title';
+      finalOrder = 'asc';
+    }
     
     const where = { userId: req.user.userId };
     
@@ -312,6 +336,7 @@ app.get('/api/papers', authenticateToken, async (req, res) => {
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
+        { authors: { contains: search, mode: 'insensitive' } },
         { summary: { contains: search, mode: 'insensitive' } },
         { keywords: { hasSome: [search] } }
       ];
@@ -319,20 +344,36 @@ app.get('/api/papers', authenticateToken, async (req, res) => {
     
     const papers = await prisma.paper.findMany({
       where,
-      orderBy: { uploadedAt: 'desc' },
-      skip: (parseInt(page) - 1) * parseInt(limit),
-      take: parseInt(limit)
+      orderBy: { [finalSortBy]: finalOrder },
+      skip,
+      take: limitNum,
+      select: {
+        id: true,
+        title: true,
+        authors: true,
+        summary: true,
+        keywords: true,
+        category: true,
+        fileName: true,
+        fileSize: true,
+        uploadedAt: true,
+        publicationYear: true,
+        journal: true,
+        doi: true
+      }
     });
     
-    const total = await prisma.paper.count({ where });
+    const totalCount = await prisma.paper.count({ where });
+    const totalPages = Math.ceil(totalCount / limitNum);
     
     res.json({ 
       papers,
       pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
+        currentPage: pageNum,
+        totalPages,
+        totalCount,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1
       }
     });
   } catch (error) {
@@ -687,6 +728,114 @@ app.get('/api/user', authenticateToken, async (req, res) => {
     res.json({ user: { ...user, paperCount } });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch user' });
+  }
+});
+
+// Notes routes
+app.post('/api/notes', authenticateToken, async (req, res) => {
+  try {
+    const { content, paperId } = req.body;
+
+    if (!content || !paperId) {
+      return res.status(400).json({ error: 'Content and paperId are required' });
+    }
+
+    // Verify paper exists and belongs to user
+    const paper = await prisma.paper.findFirst({
+      where: { id: paperId, userId: req.user.userId }
+    });
+
+    if (!paper) {
+      return res.status(404).json({ error: 'Paper not found' });
+    }
+
+    const note = await prisma.note.create({
+      data: {
+        content,
+        paperId,
+        userId: req.user.userId
+      }
+    });
+
+    res.status(201).json({ message: 'Note created successfully', note });
+  } catch (error) {
+    console.error('Create note error:', error);
+    res.status(500).json({ error: 'Failed to create note' });
+  }
+});
+
+app.get('/api/notes/:paperId', authenticateToken, async (req, res) => {
+  try {
+    const { paperId } = req.params;
+
+    // Verify paper exists and belongs to user
+    const paper = await prisma.paper.findFirst({
+      where: { id: paperId, userId: req.user.userId }
+    });
+
+    if (!paper) {
+      return res.status(404).json({ error: 'Paper not found' });
+    }
+
+    const notes = await prisma.note.findMany({
+      where: { paperId, userId: req.user.userId },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json({ notes });
+  } catch (error) {
+    console.error('Get notes error:', error);
+    res.status(500).json({ error: 'Failed to fetch notes' });
+  }
+});
+
+app.put('/api/notes/:noteId', authenticateToken, async (req, res) => {
+  try {
+    const { noteId } = req.params;
+    const { content } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+
+    const existingNote = await prisma.note.findFirst({
+      where: { id: noteId, userId: req.user.userId }
+    });
+
+    if (!existingNote) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
+
+    const updatedNote = await prisma.note.update({
+      where: { id: noteId },
+      data: { content }
+    });
+
+    res.json({ message: 'Note updated successfully', note: updatedNote });
+  } catch (error) {
+    console.error('Update note error:', error);
+    res.status(500).json({ error: 'Failed to update note' });
+  }
+});
+
+app.delete('/api/notes/:noteId', authenticateToken, async (req, res) => {
+  try {
+    const { noteId } = req.params;
+
+    const existingNote = await prisma.note.findFirst({
+      where: { id: noteId, userId: req.user.userId }
+    });
+
+    if (!existingNote) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
+
+    await prisma.note.delete({ where: { id: noteId } });
+
+    res.json({ message: 'Note deleted successfully' });
+  } catch (error) {
+    console.error('Delete note error:', error);
+    res.status(500).json({ error: 'Failed to delete note' });
   }
 });
 

@@ -1,6 +1,6 @@
 {
   "installCommand": "cd api && npm install && cd ../frontend && npm install --include=dev",
-  "buildCommand": "cd api && npx prisma db push --skip-generate && cd ../frontend && npm run build",
+  "buildCommand": "cd api && npx prisma db push --skip-generate --accept-data-loss && cd ../frontend && npm run build",
   "outputDirectory": "frontend/dist",
   "rewrites": [
     {
