@@ -67,7 +67,7 @@ async function analyzePaper(text) {
     console.log('Creating Gemini instance...');
     const genAI = new GeminiAI(process.env.GEMINI_API_KEY);
     console.log('Getting model...');
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
     
     // Truncate text if too long
     const maxChars = 30000;
