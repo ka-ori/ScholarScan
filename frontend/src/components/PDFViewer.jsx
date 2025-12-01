@@ -108,17 +108,20 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
       const pdf = await loadingTask.promise
       setPdfDoc(pdf)
       
-      const normalizeText = (text) => {
-        return text
-          .toLowerCase()
-          .replace(/[\n\r]+/g, ' ')
-          .replace(/\s+/g, ' ')
-          .replace(/[^\w\s]/g, '')
-          .trim()
-      }
+      // Get a distinctive phrase from the highlight text (first 50-80 chars)
+      const searchPhrase = highlightText.toLowerCase().trim()
       
-      const searchTerms = normalizeText(highlightText).split(' ').filter(w => w.length > 3)
-      const keyTerms = searchTerms.filter(w => w.length > 5).slice(0, 5)
+      // Extract unique/distinctive words (longer words, not common)
+      const commonWords = ['the', 'and', 'was', 'she', 'her', 'had', 'that', 'with', 'for', 'but', 'not', 'this', 'from', 'they', 'were', 'been', 'have', 'are', 'being', 'would', 'could', 'after', 'first', 'also', 'into', 'only', 'over', 'such', 'even', 'most', 'other', 'some', 'very', 'just', 'about', 'which', 'when', 'there', 'because', 'through']
+      const words = searchPhrase.split(/\s+/).filter(w => w.length > 3)
+      const distinctiveWords = words.filter(w => !commonWords.includes(w.replace(/[^\w]/g, '')))
+      
+      // Get the most distinctive terms (longest, least common)
+      const keyTerms = distinctiveWords
+        .sort((a, b) => b.length - a.length)
+        .slice(0, 6)
+      
+      console.log('Searching for distinctive terms:', keyTerms)
       
       if (keyTerms.length === 0) {
         setSearchingPages(false)
@@ -126,25 +129,43 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
       }
       
       // Search each page for the text
+      let bestPage = null
+      let bestScore = 0
+      
       for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
         const page = await pdf.getPage(pageNum)
         const textContent = await page.getTextContent()
-        const pageText = normalizeText(textContent.items.map(item => item.str).join(' '))
+        const pageText = textContent.items.map(item => item.str).join(' ').toLowerCase()
         
-        // Check if this page contains most of the key terms
-        const matchCount = keyTerms.filter(term => pageText.includes(term)).length
-        
-        if (matchCount >= Math.ceil(keyTerms.length * 0.5)) {
-          console.log(`Found matching text on page ${pageNum}`)
+        // Check for exact phrase match first (first 40 chars)
+        const shortPhrase = searchPhrase.substring(0, 40).replace(/[^\w\s]/g, '')
+        if (pageText.replace(/[^\w\s]/g, '').includes(shortPhrase)) {
+          console.log(`Found exact phrase match on page ${pageNum}`)
           setSearchStatus(`Found on page ${pageNum}`)
           setCurrentPage(pageNum)
           setSearchingPages(false)
           return
         }
+        
+        // Count distinctive term matches
+        const matchCount = keyTerms.filter(term => pageText.includes(term.replace(/[^\w]/g, ''))).length
+        const score = matchCount / keyTerms.length
+        
+        if (score > bestScore) {
+          bestScore = score
+          bestPage = pageNum
+        }
       }
       
-      setSearchStatus('Text not found - showing suggested page')
-      console.log('Text not found in any page, staying on suggested page')
+      // Use best matching page if score is good enough
+      if (bestPage && bestScore >= 0.5) {
+        console.log(`Best match on page ${bestPage} with score ${bestScore}`)
+        setSearchStatus(`Found on page ${bestPage}`)
+        setCurrentPage(bestPage)
+      } else {
+        setSearchStatus('Text not found - showing suggested page')
+        console.log('Text not found in any page, staying on suggested page')
+      }
     } catch (err) {
       console.error('Error searching PDF:', err)
       setSearchStatus('')
@@ -190,25 +211,39 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         el.removeAttribute('data-highlighted')
       })
 
-      // Get the full page text for context
+      // Common words to ignore when matching
+      const commonWords = ['the', 'and', 'was', 'she', 'her', 'had', 'that', 'with', 'for', 'but', 'not', 'this', 'from', 'they', 'were', 'been', 'have', 'are', 'being', 'would', 'could', 'after', 'first', 'also', 'into', 'only', 'over', 'such', 'even', 'most', 'other', 'some', 'very', 'just', 'about', 'which', 'when', 'there', 'because', 'through', 'child', 'children', 'mother', 'father', 'long', 'own', 'felt', 'feel', 'made', 'make', 'said', 'told', 'left', 'went', 'came', 'took', 'gave', 'got', 'all', 'any', 'way', 'one', 'two']
+      
+      // Get the full page text
       const fullPageText = allElements.map(el => el.textContent).join(' ').toLowerCase()
       
-      // Normalize search text - keep more characters for better matching
+      // Prepare search text
       const searchLower = highlightText.toLowerCase().trim()
+      const searchWords = searchLower.split(/\s+/).filter(w => w.length > 2)
       
-      // Extract key phrases (3+ consecutive words)
-      const words = searchLower.split(/\s+/).filter(w => w.length > 0)
+      // Get ONLY distinctive words (not common)
+      const distinctiveWords = searchWords
+        .map(w => w.replace(/[^\w]/g, ''))
+        .filter(w => w.length > 4 && !commonWords.includes(w))
+      
+      console.log('Highlighting with distinctive words:', distinctiveWords.slice(0, 5))
       
       let foundMatch = false
       let highlightedElements = []
 
-      // Strategy 1: Look for exact substring match in page text, then find elements
-      if (fullPageText.includes(searchLower.substring(0, 50))) {
-        // The text exists, find which elements contain it
+      // Strategy 1: Look for exact phrase (first 30-50 chars normalized)
+      const shortPhrase = searchLower.substring(0, 50).replace(/[^\w\s]/g, '').trim()
+      const pageTextNormalized = fullPageText.replace(/[^\w\s]/g, '')
+      
+      if (pageTextNormalized.includes(shortPhrase)) {
+        // Found the phrase - now highlight elements that contain parts of it
+        const phraseWords = shortPhrase.split(/\s+/).filter(w => w.length > 3 && !commonWords.includes(w))
+        
         allElements.forEach(el => {
-          const elText = el.textContent.toLowerCase()
-          // Check if this element's text appears in our search string
-          if (elText.length > 2 && searchLower.includes(elText.trim())) {
+          const elText = el.textContent.toLowerCase().replace(/[^\w\s]/g, '')
+          const matchingWords = phraseWords.filter(w => elText.includes(w))
+          
+          if (matchingWords.length >= 1 && elText.length > 2) {
             applyHighlight(el)
             highlightedElements.push(el)
             foundMatch = true
@@ -216,45 +251,16 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         })
       }
 
-      // Strategy 2: Match elements whose text is contained in the search phrase
-      if (!foundMatch) {
+      // Strategy 2: Match by distinctive words only (if phrase not found)
+      if (!foundMatch && distinctiveWords.length > 0) {
         allElements.forEach(el => {
-          const elText = el.textContent.toLowerCase().trim()
-          if (elText.length > 2) {
-            // Check if element text is part of search text
-            if (searchLower.includes(elText)) {
-              applyHighlight(el)
-              highlightedElements.push(el)
-              foundMatch = true
-            }
-          }
-        })
-      }
-
-      // Strategy 3: Word-by-word matching
-      if (!foundMatch) {
-        const significantWords = words.filter(w => w.length > 4)
-        
-        allElements.forEach(el => {
-          const elText = el.textContent.toLowerCase()
-          const matchCount = significantWords.filter(word => elText.includes(word)).length
+          const elText = el.textContent.toLowerCase().replace(/[^\w]/g, '')
           
-          if (matchCount >= 1 || (significantWords.length > 0 && matchCount / significantWords.length >= 0.1)) {
+          // Only highlight if element contains a distinctive word
+          const hasDistinctive = distinctiveWords.some(word => elText.includes(word))
+          
+          if (hasDistinctive && elText.length > 3) {
             applyHighlight(el, 0.5)
-            highlightedElements.push(el)
-            foundMatch = true
-          }
-        })
-      }
-
-      // Strategy 4: Find elements that contain ANY word from search (case insensitive)
-      if (!foundMatch) {
-        const anyWords = words.filter(w => w.length > 3)
-        
-        allElements.forEach(el => {
-          const elText = el.textContent.toLowerCase()
-          if (anyWords.some(word => elText.includes(word))) {
-            applyHighlight(el, 0.4)
             highlightedElements.push(el)
             foundMatch = true
           }
@@ -263,9 +269,8 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
 
       // Scroll to first highlighted element
       if (highlightedElements.length > 0) {
-        // Find the element closest to the middle of all highlighted elements
-        const firstEl = highlightedElements[0]
-        firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        highlightedElements[0].scrollIntoView({ behavior: 'smooth', block: 'center' })
+        console.log('Highlighted', highlightedElements.length, 'elements')
       }
 
       function applyHighlight(element, opacity = 0.6) {
@@ -276,11 +281,8 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
       }
 
       if (!foundMatch) {
-        console.log('No highlight match found')
-        console.log('Search text:', searchLower.substring(0, 100))
-        console.log('Page has elements:', allElements.length)
-      } else {
-        console.log('Highlighted', highlightedElements.length, 'elements')
+        console.log('No highlight match found on this page')
+        console.log('Distinctive words:', distinctiveWords)
       }
     }
 
