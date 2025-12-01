@@ -13,9 +13,9 @@ let GoogleGenerativeAI = null;
 const loadPdfParse = () => {
   if (!pdfParse) {
     try {
-      pdfParse = require('pdf-parse');
+      pdfParse = require('pdf-parse-fork');
     } catch (e) {
-      console.error('Failed to load pdf-parse:', e.message);
+      console.error('Failed to load pdf-parse-fork:', e.message);
     }
   }
   return pdfParse;
