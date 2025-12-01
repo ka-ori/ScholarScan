@@ -102,7 +102,7 @@ function Dashboard() {
             <div className="flex-1">
               <p className="text-gray-600 text-xs sm:text-sm mb-1">Welcome back,</p>
               <h1 className="text-2xl sm:text-3xl font-bold text-black">
-                {user?.name || 'Researcher'}! 👋
+                {user?.name || 'Researcher'}!
               </h1>
               <p className="text-gray-600 text-sm mt-2">Upload, analyze, and organize your papers with AI</p>
             </div>
