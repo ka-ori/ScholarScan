@@ -9,7 +9,11 @@ const pdfParse = require('pdf-parse');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
-const prisma = new PrismaClient();
+
+// Initialize Prisma client for serverless (reuse connection)
+const globalForPrisma = global;
+const prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Initialize Gemini AI if API key is available
 let genAI = null;

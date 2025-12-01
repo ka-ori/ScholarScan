@@ -115,8 +115,18 @@ function Login() {
       setErrors({})
       navigate('/dashboard')
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Login failed. Please try again.'
-      console.error('Login error:', errorMessage)
+      console.error('Login error:', error)
+      console.error('Response:', error.response)
+      let errorMessage = 'Login failed. Please try again.'
+      
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error
+      } else if (error.response?.status === 500) {
+        errorMessage = 'Server error. Please try again later.'
+      } else if (error.message === 'Network Error') {
+        errorMessage = 'Cannot connect to server. Please check your connection.'
+      }
+      
       notyf.error(errorMessage)
     } finally {
       setLoading(false)
