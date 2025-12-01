@@ -173,17 +173,16 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         return
       }
 
-      // Get all text-containing elements (spans, divs, etc.)
-      const textElements = textLayer.querySelectorAll('span, div[role="presentation"]')
-      if (textElements.length === 0 && attempt < 10) {
+      // Get all text-containing elements
+      const allElements = Array.from(textLayer.querySelectorAll('span, div'))
+        .filter(el => el.textContent && el.textContent.trim().length > 0)
+      
+      if (allElements.length === 0 && attempt < 10) {
         setTimeout(() => attemptHighlight(attempt + 1), 300)
         return
       }
 
-      // Also check for br tags which some PDFs use
-      const allElements = textLayer.querySelectorAll('*')
-
-      // Clear previous highlights from all elements
+      // Clear previous highlights
       allElements.forEach(el => {
         el.style.backgroundColor = ''
         el.style.borderRadius = ''
@@ -191,87 +190,71 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         el.removeAttribute('data-highlighted')
       })
 
-      // Normalize the search text
-      const normalizeText = (text) => {
-        return text
-          .toLowerCase()
-          .replace(/[\n\r]+/g, ' ')
-          .replace(/\s+/g, ' ')
-          .replace(/[^\w\s]/g, '')
-          .trim()
-      }
-
-      const searchText = normalizeText(highlightText)
-      const searchWords = searchText.split(' ').filter(w => w.length > 2)
+      // Get the full page text for context
+      const fullPageText = allElements.map(el => el.textContent).join(' ').toLowerCase()
       
-      if (searchWords.length === 0) return
-
+      // Normalize search text - keep more characters for better matching
+      const searchLower = highlightText.toLowerCase().trim()
+      
+      // Extract key phrases (3+ consecutive words)
+      const words = searchLower.split(/\s+/).filter(w => w.length > 0)
+      
       let foundMatch = false
       let highlightedElements = []
 
-      // Build element data
-      const elementsWithText = Array.from(allElements)
-        .filter(el => el.textContent && el.textContent.trim())
-        .map(el => ({
-          el,
-          text: normalizeText(el.textContent || ''),
-          rawText: (el.textContent || '').toLowerCase()
-        }))
-
-      // Get key words (longer, more significant words)
-      const keyWords = searchWords
-        .filter(w => w.length > 3)
-        .sort((a, b) => b.length - a.length)
-        .slice(0, 8)
-
-      // Strategy 1: Look for elements that contain multiple search words
-      elementsWithText.forEach((item) => {
-        const { el, text, rawText } = item
-        
-        if (!text || text.length < 2) return
-        
-        // Count how many search words appear in this element
-        const matchingWords = keyWords.filter(word => 
-          text.includes(word) || rawText.includes(word)
-        )
-        const matchRatio = keyWords.length > 0 ? matchingWords.length / keyWords.length : 0
-
-        // Match if we find significant portion of key words
-        if (matchRatio >= 0.15 || matchingWords.length >= 2) {
-          applyHighlight(el)
-          highlightedElements.push(el)
-          foundMatch = true
-        }
-      })
-
-      // Strategy 2: If no match yet, try individual significant words
-      if (!foundMatch && keyWords.length > 0) {
-        const veryKeyWords = keyWords.filter(w => w.length > 5).slice(0, 4)
-        
-        elementsWithText.forEach(({ el, text, rawText }) => {
-          const hasKeyWord = veryKeyWords.some(word => 
-            text.includes(word) || rawText.includes(word)
-          )
-          if (hasKeyWord) {
-            applyHighlight(el, 0.4)
+      // Strategy 1: Look for exact substring match in page text, then find elements
+      if (fullPageText.includes(searchLower.substring(0, 50))) {
+        // The text exists, find which elements contain it
+        allElements.forEach(el => {
+          const elText = el.textContent.toLowerCase()
+          // Check if this element's text appears in our search string
+          if (elText.length > 2 && searchLower.includes(elText.trim())) {
+            applyHighlight(el)
             highlightedElements.push(el)
             foundMatch = true
           }
         })
       }
 
-      // Strategy 3: Look for partial word matches (for hyphenated or split text)
-      if (!foundMatch && keyWords.length > 0) {
-        const longWords = keyWords.filter(w => w.length > 6)
+      // Strategy 2: Match elements whose text is contained in the search phrase
+      if (!foundMatch) {
+        allElements.forEach(el => {
+          const elText = el.textContent.toLowerCase().trim()
+          if (elText.length > 2) {
+            // Check if element text is part of search text
+            if (searchLower.includes(elText)) {
+              applyHighlight(el)
+              highlightedElements.push(el)
+              foundMatch = true
+            }
+          }
+        })
+      }
+
+      // Strategy 3: Word-by-word matching
+      if (!foundMatch) {
+        const significantWords = words.filter(w => w.length > 4)
         
-        elementsWithText.forEach(({ el, text, rawText }) => {
-          const hasPartialMatch = longWords.some(word => {
-            // Check if at least half of the word matches
-            const halfWord = word.substring(0, Math.ceil(word.length / 2))
-            return text.includes(halfWord) || rawText.includes(halfWord)
-          })
-          if (hasPartialMatch) {
-            applyHighlight(el, 0.3)
+        allElements.forEach(el => {
+          const elText = el.textContent.toLowerCase()
+          const matchCount = significantWords.filter(word => elText.includes(word)).length
+          
+          if (matchCount >= 1 || (significantWords.length > 0 && matchCount / significantWords.length >= 0.1)) {
+            applyHighlight(el, 0.5)
+            highlightedElements.push(el)
+            foundMatch = true
+          }
+        })
+      }
+
+      // Strategy 4: Find elements that contain ANY word from search (case insensitive)
+      if (!foundMatch) {
+        const anyWords = words.filter(w => w.length > 3)
+        
+        allElements.forEach(el => {
+          const elText = el.textContent.toLowerCase()
+          if (anyWords.some(word => elText.includes(word))) {
+            applyHighlight(el, 0.4)
             highlightedElements.push(el)
             foundMatch = true
           }
@@ -280,21 +263,24 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
 
       // Scroll to first highlighted element
       if (highlightedElements.length > 0) {
-        highlightedElements[0].scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // Find the element closest to the middle of all highlighted elements
+        const firstEl = highlightedElements[0]
+        firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
 
       function applyHighlight(element, opacity = 0.6) {
         element.style.backgroundColor = `rgba(255, 235, 59, ${opacity})`
         element.style.borderRadius = '2px'
-        element.style.boxShadow = '0 0 2px rgba(255, 235, 59, 0.8)'
+        element.style.boxShadow = '0 0 3px rgba(255, 235, 59, 0.9)'
         element.setAttribute('data-highlighted', 'true')
       }
 
-      // If still no match found, log for debugging
       if (!foundMatch) {
-        console.log('No highlight match found for:', highlightText.substring(0, 50))
-        console.log('Search words:', keyWords)
-        console.log('Total text elements:', elementsWithText.length)
+        console.log('No highlight match found')
+        console.log('Search text:', searchLower.substring(0, 100))
+        console.log('Page has elements:', allElements.length)
+      } else {
+        console.log('Highlighted', highlightedElements.length, 'elements')
       }
     }
 
