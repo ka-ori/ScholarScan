@@ -41,13 +41,19 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // AI Analysis function
 async function analyzePaper(text) {
+  console.log('analyzePaper called, text length:', text?.length);
+  
   // Lazy load Gemini
   const GeminiAI = loadGemini();
+  console.log('GeminiAI loaded:', !!GeminiAI);
+  console.log('GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
+  
   if (!GeminiAI || !process.env.GEMINI_API_KEY) {
+    console.log('Missing GeminiAI or API key');
     return {
       title: 'Untitled Paper',
       authors: null,
-      summary: 'AI analysis not available. Please add GEMINI_API_KEY to environment variables.',
+      summary: 'AI analysis not available. GeminiAI: ' + !!GeminiAI + ', API Key: ' + !!process.env.GEMINI_API_KEY,
       keywords: [],
       keyFindings: [],
       category: 'Other',
@@ -58,12 +64,15 @@ async function analyzePaper(text) {
   }
 
   try {
+    console.log('Creating Gemini instance...');
     const genAI = new GeminiAI(process.env.GEMINI_API_KEY);
+    console.log('Getting model...');
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     
     // Truncate text if too long
     const maxChars = 30000;
     const truncatedText = text.length > maxChars ? text.substring(0, maxChars) + '...' : text;
+    console.log('Text truncated to:', truncatedText.length);
 
     const prompt = `Analyze this research paper and extract the following information in JSON format:
 {
@@ -91,9 +100,12 @@ ${truncatedText}
 
 Return ONLY valid JSON, no markdown or explanation.`;
 
+    console.log('Calling Gemini API...');
     const result = await model.generateContent(prompt);
+    console.log('Got result, getting response...');
     const response = await result.response;
     let jsonText = response.text().trim();
+    console.log('Response text length:', jsonText.length);
     
     // Clean up response
     if (jsonText.startsWith('```json')) {
@@ -106,14 +118,17 @@ Return ONLY valid JSON, no markdown or explanation.`;
       jsonText = jsonText.slice(0, -3);
     }
     
+    console.log('Parsing JSON...');
     const analysis = JSON.parse(jsonText.trim());
+    console.log('Analysis complete:', analysis.title);
     return analysis;
   } catch (error) {
-    console.error('AI analysis error:', error);
+    console.error('AI analysis error:', error.message);
+    console.error('Error stack:', error.stack);
     return {
       title: 'Untitled Paper',
       authors: null,
-      summary: 'AI analysis failed. The paper has been uploaded successfully.',
+      summary: 'AI analysis failed: ' + (error.message || 'Unknown error'),
       keywords: [],
       keyFindings: [],
       category: 'Other',
