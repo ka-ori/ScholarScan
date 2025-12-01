@@ -167,23 +167,28 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
     const attemptHighlight = (attempt = 0) => {
       const textLayer = containerRef.current?.querySelector('.react-pdf__Page__textContent')
       if (!textLayer) {
-        if (attempt < 5) {
+        if (attempt < 10) {
           setTimeout(() => attemptHighlight(attempt + 1), 300)
         }
         return
       }
 
-      const spans = textLayer.querySelectorAll('span')
-      if (spans.length === 0 && attempt < 5) {
+      // Get all text-containing elements (spans, divs, etc.)
+      const textElements = textLayer.querySelectorAll('span, div[role="presentation"]')
+      if (textElements.length === 0 && attempt < 10) {
         setTimeout(() => attemptHighlight(attempt + 1), 300)
         return
       }
 
-      // Clear previous highlights
-      spans.forEach(span => {
-        span.style.backgroundColor = ''
-        span.style.borderRadius = ''
-        span.style.padding = ''
+      // Also check for br tags which some PDFs use
+      const allElements = textLayer.querySelectorAll('*')
+
+      // Clear previous highlights from all elements
+      allElements.forEach(el => {
+        el.style.backgroundColor = ''
+        el.style.borderRadius = ''
+        el.style.boxShadow = ''
+        el.removeAttribute('data-highlighted')
       })
 
       // Normalize the search text
@@ -202,60 +207,94 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
       if (searchWords.length === 0) return
 
       let foundMatch = false
+      let highlightedElements = []
 
-      // Build full text from spans to find matches
-      const spanTexts = Array.from(spans).map(span => ({
-        span,
-        text: normalizeText(span.textContent || '')
-      }))
+      // Build element data
+      const elementsWithText = Array.from(allElements)
+        .filter(el => el.textContent && el.textContent.trim())
+        .map(el => ({
+          el,
+          text: normalizeText(el.textContent || ''),
+          rawText: (el.textContent || '').toLowerCase()
+        }))
 
-      // Strategy 1: Look for consecutive spans that together contain the search words
-      spanTexts.forEach((item) => {
-        const { span, text } = item
+      // Get key words (longer, more significant words)
+      const keyWords = searchWords
+        .filter(w => w.length > 3)
+        .sort((a, b) => b.length - a.length)
+        .slice(0, 8)
+
+      // Strategy 1: Look for elements that contain multiple search words
+      elementsWithText.forEach((item) => {
+        const { el, text, rawText } = item
         
-        // Count how many search words appear in this span
-        const matchingWords = searchWords.filter(word => text.includes(word))
-        const matchRatio = matchingWords.length / searchWords.length
+        if (!text || text.length < 2) return
+        
+        // Count how many search words appear in this element
+        const matchingWords = keyWords.filter(word => 
+          text.includes(word) || rawText.includes(word)
+        )
+        const matchRatio = keyWords.length > 0 ? matchingWords.length / keyWords.length : 0
 
-        // Direct match - span contains significant portion of search words
-        if (matchRatio >= 0.2 || matchingWords.length >= 2) {
-          span.style.backgroundColor = 'rgba(255, 235, 59, 0.7)'
-          span.style.borderRadius = '2px'
-          span.style.padding = '2px 0'
-          
-          if (!foundMatch) {
-            span.scrollIntoView({ behavior: 'smooth', block: 'center' })
-            foundMatch = true
-          }
+        // Match if we find significant portion of key words
+        if (matchRatio >= 0.15 || matchingWords.length >= 2) {
+          applyHighlight(el)
+          highlightedElements.push(el)
+          foundMatch = true
         }
       })
 
-      // Strategy 2: If no direct match, try to find any of the key words
-      if (!foundMatch && searchWords.length > 0) {
-        // Get the most significant words (longer ones)
-        const keyWords = searchWords
-          .filter(w => w.length > 4)
-          .slice(0, 3)
-
-        if (keyWords.length > 0) {
-          spanTexts.forEach(({ span, text }) => {
-            const hasKeyWord = keyWords.some(word => text.includes(word))
-            if (hasKeyWord) {
-              span.style.backgroundColor = 'rgba(255, 235, 59, 0.5)'
-              span.style.borderRadius = '2px'
-              
-              if (!foundMatch) {
-                span.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                foundMatch = true
-              }
-            }
-          })
-        }
+      // Strategy 2: If no match yet, try individual significant words
+      if (!foundMatch && keyWords.length > 0) {
+        const veryKeyWords = keyWords.filter(w => w.length > 5).slice(0, 4)
+        
+        elementsWithText.forEach(({ el, text, rawText }) => {
+          const hasKeyWord = veryKeyWords.some(word => 
+            text.includes(word) || rawText.includes(word)
+          )
+          if (hasKeyWord) {
+            applyHighlight(el, 0.4)
+            highlightedElements.push(el)
+            foundMatch = true
+          }
+        })
       }
 
-      // If still no match found, show a subtle indicator
+      // Strategy 3: Look for partial word matches (for hyphenated or split text)
+      if (!foundMatch && keyWords.length > 0) {
+        const longWords = keyWords.filter(w => w.length > 6)
+        
+        elementsWithText.forEach(({ el, text, rawText }) => {
+          const hasPartialMatch = longWords.some(word => {
+            // Check if at least half of the word matches
+            const halfWord = word.substring(0, Math.ceil(word.length / 2))
+            return text.includes(halfWord) || rawText.includes(halfWord)
+          })
+          if (hasPartialMatch) {
+            applyHighlight(el, 0.3)
+            highlightedElements.push(el)
+            foundMatch = true
+          }
+        })
+      }
+
+      // Scroll to first highlighted element
+      if (highlightedElements.length > 0) {
+        highlightedElements[0].scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+
+      function applyHighlight(element, opacity = 0.6) {
+        element.style.backgroundColor = `rgba(255, 235, 59, ${opacity})`
+        element.style.borderRadius = '2px'
+        element.style.boxShadow = '0 0 2px rgba(255, 235, 59, 0.8)'
+        element.setAttribute('data-highlighted', 'true')
+      }
+
+      // If still no match found, log for debugging
       if (!foundMatch) {
         console.log('No highlight match found for:', highlightText.substring(0, 50))
+        console.log('Search words:', keyWords)
+        console.log('Total text elements:', elementsWithText.length)
       }
     }
 
