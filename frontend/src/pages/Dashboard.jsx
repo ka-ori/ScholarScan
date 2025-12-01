@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { 
-  FileText, Upload, Brain, Search, Filter, Clock, Tag, LogOut, Settings
+  FileText, Upload, Brain, Search, Clock, Tag, LogOut, Settings
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
@@ -29,7 +29,6 @@ function Dashboard() {
   const { logout, user } = useAuthStore()
   const [activeView, setActiveView] = useState('library')
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('All Categories')
   const [papers, setPapers] = useState([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState({
@@ -44,7 +43,7 @@ function Dashboard() {
 
   useEffect(() => {
     fetchPapers()
-  }, [selectedCategory, page, sortBy, order])
+  }, [page, sortBy, order])
 
   const fetchPapers = async (search = searchQuery) => {
     try {
@@ -54,9 +53,6 @@ function Dashboard() {
         limit: 9, // 3x3 grid
         sortBy,
         order
-      }
-      if (selectedCategory !== 'All Categories') {
-        params.category = selectedCategory
       }
       if (search) {
         params.search = search
@@ -103,17 +99,6 @@ function Dashboard() {
     logout()
     navigate('/login')
   }
-
-  const categories = [
-    'Computer Science',
-    'Artificial Intelligence',
-    'Machine Learning',
-    'Natural Language Processing',
-    'Computer Vision',
-    'Physics',
-    'Mathematics',
-    'Other'
-  ]
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -205,22 +190,6 @@ function Dashboard() {
                 />
               </div>
               <div className="flex gap-2">
-                <select 
-                  value={selectedCategory}
-                  onChange={(e) => {
-                    setSelectedCategory(e.target.value)
-                    setPage(1)
-                  }}
-                  className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-gray-700"
-                >
-                  <option>All Categories</option>
-                  {categories.map(cat => (
-                    <option key={cat}>{cat}</option>
-                  ))}
-                </select>
-                <button className="px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Filter className="w-5 h-5 text-gray-600" />
-                </button>
                 <select 
                   onChange={handleSortChange}
                   className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-gray-700"
