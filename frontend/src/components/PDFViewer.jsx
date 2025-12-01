@@ -35,6 +35,21 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
           throw new Error('Invalid PDF URL')
         }
         
+        // First, try to get the PDF URL (which may be a Vercel Blob URL)
+        try {
+          const urlResponse = await api.get(`/papers/${paperId}/pdf`)
+          if (urlResponse.data?.url) {
+            // Got a Vercel Blob URL - load directly from there
+            console.log('Using blob URL:', urlResponse.data.url)
+            setPdfBlobUrl(urlResponse.data.url)
+            setLoading(false)
+            return
+          }
+        } catch (urlErr) {
+          console.log('PDF URL fetch failed, trying blob download:', urlErr.response?.status)
+        }
+        
+        // Fall back to downloading as blob
         const response = await api.get(`/papers/${paperId}/pdf`, {
           responseType: 'blob'
         })

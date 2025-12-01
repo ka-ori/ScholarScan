@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { authenticateToken } from '../middleware/auth.js';
 import { processPDF } from '../services/pdfService.js';
 import { analyzePaper } from '../services/aiService.js';
+import { uploadFile, deleteFile, isVercelBlobConfigured } from '../services/blobService.js';
 import prisma from '../config/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -49,12 +50,32 @@ router.post('/', async (req, res, next) => {
     // Use AI to analyze the paper (pass page count for better estimation)
     const analysis = await analyzePaper(extractedText, pdfData.numPages);
 
-    // Save file
-    const uploadDir = process.env.UPLOAD_DIR || './uploads';
-    const fileName = `${Date.now()}-${pdfFile.name}`;
-    const filePath = path.join(uploadDir, fileName);
-    
-    await pdfFile.mv(filePath);
+    // Save file to Vercel Blob or local storage
+    let blobUrl = null;
+    let filePath = null;
+
+    if (isVercelBlobConfigured()) {
+      // Upload to Vercel Blob
+      try {
+        const blob = await uploadFile(pdfFile.name, pdfFile.data, 'application/pdf');
+        blobUrl = blob.url;
+        filePath = blob.pathname;
+        console.log('File uploaded to Vercel Blob:', blob.url);
+      } catch (blobError) {
+        console.error('Blob upload failed, falling back to local storage:', blobError.message);
+        // Fall back to local storage
+        const uploadDir = process.env.UPLOAD_DIR || './uploads';
+        const fileName = `${Date.now()}-${pdfFile.name}`;
+        filePath = fileName;
+        await pdfFile.mv(path.join(uploadDir, fileName));
+      }
+    } else {
+      // Use local storage
+      const uploadDir = process.env.UPLOAD_DIR || './uploads';
+      const fileName = `${Date.now()}-${pdfFile.name}`;
+      filePath = fileName;
+      await pdfFile.mv(path.join(uploadDir, fileName));
+    }
 
     // Save to database (store keyFindings as part of summary for now)
     const summaryWithFindings = JSON.stringify({
@@ -73,13 +94,14 @@ router.post('/', async (req, res, next) => {
         keywords: analysis.keywords,
         category: analysis.category,
         fileName: pdfFile.name,
-        filePath: fileName,
+        filePath: filePath,
         fileSize: pdfFile.size,
         fullText: extractedText.substring(0, 50000), // Store first 50k chars
         publicationYear: analysis.publicationYear,
         journal: analysis.journal,
         doi: analysis.doi,
-        userId: req.user.userId
+        userId: req.user.userId,
+        blobUrl: blobUrl // Store blob URL for cloud retrieval
       }
     });
 
@@ -207,7 +229,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-// Serve PDF file for viewing
+// Serve PDF file for viewing or return blob URL
 router.get('/:id/pdf', async (req, res, next) => {
   try {
     const paper = await prisma.paper.findFirst({
@@ -215,13 +237,19 @@ router.get('/:id/pdf', async (req, res, next) => {
         id: req.params.id,
         userId: req.user.userId
       },
-      select: { filePath: true, fileName: true }
+      select: { filePath: true, fileName: true, blobUrl: true }
     });
 
     if (!paper) {
       return res.status(404).json({ error: 'Paper not found' });
     }
 
+    // If stored in Vercel Blob, return the blob URL
+    if (paper.blobUrl) {
+      return res.json({ url: paper.blobUrl });
+    }
+
+    // Otherwise serve from local storage
     const uploadDir = process.env.UPLOAD_DIR || './uploads';
     const fullPath = path.join(uploadDir, paper.filePath);
     

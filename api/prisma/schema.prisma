@@ -40,6 +40,7 @@ model Paper {
   publicationYear Int?
   journal       String?
   doi           String?
+  blobUrl       String?  // URL to Vercel Blob storage, if uploaded there
 
   @@map("papers")
   @@index([userId])

@@ -3,6 +3,7 @@ const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { put } = require('@vercel/blob');
 
 const app = express();
 const prisma = new PrismaClient();
@@ -220,11 +221,76 @@ app.get('/api/papers/:id', authenticateToken, async (req, res) => {
 });
 
 app.post('/api/papers', authenticateToken, async (req, res) => {
-  res.status(501).json({ 
-    error: 'File upload is not available in the cloud deployment',
-    message: 'PDF upload requires local server. Please run the backend locally for full functionality.',
-    hint: 'Run: cd backend && npm run dev'
-  });
+  try {
+    // This endpoint expects a JSON body with:
+    // - title, authors, summary, keywords, category, fileName, fileSize, etc.
+    // - blobUrl: URL to the blob in Vercel Blob storage
+    // - or pdfData: base64 encoded PDF to upload to Vercel Blob
+    
+    const { 
+      title, authors, summary, keywords, category, 
+      fileName, fileSize, pdfData, blobUrl, publicationYear, journal, doi
+    } = req.body;
+
+    if (!title || !fileName) {
+      return res.status(400).json({ error: 'Title and fileName are required' });
+    }
+
+    let finalBlobUrl = blobUrl;
+
+    // If pdfData is provided (base64), upload it to Vercel Blob
+    if (pdfData && !blobUrl && process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const buffer = Buffer.from(pdfData, 'base64');
+        const timestamp = Date.now();
+        const [nameWithoutExt, ext] = fileName.split(/\.(?=[^.]*$)/);
+        const uniqueFilename = `papers/${timestamp}-${nameWithoutExt}.${ext}`;
+
+        const blob = await put(uniqueFilename, buffer, {
+          access: 'public',
+          contentType: 'application/pdf',
+          addRandomSuffix: false,
+        });
+
+        finalBlobUrl = blob.url;
+        console.log('PDF uploaded to Vercel Blob:', finalBlobUrl);
+      } catch (blobError) {
+        console.error('Blob upload error:', blobError);
+        return res.status(500).json({ error: 'Failed to upload PDF to blob storage' });
+      }
+    }
+
+    if (!finalBlobUrl) {
+      return res.status(400).json({ error: 'No PDF URL or data provided' });
+    }
+
+    // Create paper in database
+    const paper = await prisma.paper.create({
+      data: {
+        title,
+        authors: authors || null,
+        summary: summary || '',
+        keywords: keywords || [],
+        category: category || 'Other',
+        fileName,
+        filePath: finalBlobUrl, // Store blob URL in filePath
+        fileSize: fileSize || 0,
+        publicationYear: publicationYear || null,
+        journal: journal || null,
+        doi: doi || null,
+        blobUrl: finalBlobUrl,
+        userId: req.user.userId
+      }
+    });
+
+    res.status(201).json({
+      message: 'Paper created successfully',
+      paper
+    });
+  } catch (error) {
+    console.error('Create paper error:', error);
+    res.status(500).json({ error: 'Failed to create paper' });
+  }
 });
 
 app.put('/api/papers/:id', authenticateToken, async (req, res) => {
@@ -279,7 +345,7 @@ app.delete('/api/papers/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// PDF viewing - not available in cloud deployment
+// PDF viewing - returns blob URL for cloud deployment
 app.get('/api/papers/:id/pdf', authenticateToken, async (req, res) => {
   try {
     const paper = await prisma.paper.findFirst({
@@ -290,9 +356,14 @@ app.get('/api/papers/:id/pdf', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Paper not found' });
     }
     
-    // PDFs are stored locally, not available in cloud deployment
+    // If stored in Vercel Blob, return the blob URL
+    if (paper.blobUrl) {
+      return res.json({ url: paper.blobUrl });
+    }
+
+    // If stored locally, return error
     res.status(501).json({ 
-      error: 'PDF viewing not available in cloud deployment',
+      error: 'PDF viewing not available',
       message: 'PDF files are stored on local server. Please run the backend locally to view PDFs.',
       hint: 'Run: cd backend && npm run dev',
       fileName: paper.fileName
