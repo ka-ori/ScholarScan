@@ -431,25 +431,39 @@ app.post('/api/papers', authenticateToken, async (req, res) => {
         doi: null
       };
 
+      let extractedText = '';
+      
+      // Step 1: Extract text from PDF
       try {
-        console.log('Extracting text from PDF...');
+        console.log('Step 1: Loading pdf-parse-fork...');
         const pdfParseLib = loadPdfParse();
         if (pdfParseLib) {
+          console.log('Step 2: Parsing PDF buffer...');
           const pdfData = await pdfParseLib(buffer);
-          const extractedText = pdfData.text;
-          console.log('Extracted text length:', extractedText.length);
-
-          if (extractedText && extractedText.length > 100) {
-            console.log('Running AI analysis...');
-            analysis = await analyzePaper(extractedText);
-            console.log('AI analysis complete:', analysis.title);
-          }
+          extractedText = pdfData.text || '';
+          console.log('Step 3: Extracted text length:', extractedText.length);
         } else {
-          console.log('pdf-parse not available, skipping text extraction');
+          console.log('pdf-parse-fork not available');
+          analysis.summary = 'PDF text extraction not available. Paper uploaded successfully.';
         }
       } catch (pdfError) {
-        console.error('PDF extraction/analysis error:', pdfError.message);
-        // Continue with default values
+        console.error('PDF extraction error:', pdfError.message, pdfError.stack);
+        analysis.summary = 'PDF text extraction failed: ' + pdfError.message;
+      }
+
+      // Step 2: Run AI analysis if we have text
+      if (extractedText && extractedText.length > 100) {
+        try {
+          console.log('Step 4: Running AI analysis...');
+          console.log('GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
+          analysis = await analyzePaper(extractedText);
+          console.log('Step 5: AI analysis complete:', analysis.title);
+        } catch (aiError) {
+          console.error('AI analysis error:', aiError.message, aiError.stack);
+          analysis.summary = 'AI analysis failed: ' + aiError.message;
+        }
+      } else if (extractedText.length <= 100) {
+        analysis.summary = 'PDF has too little text content for analysis. Paper uploaded successfully.';
       }
 
       // Store summary with key findings as JSON
