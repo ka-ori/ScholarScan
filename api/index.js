@@ -4,6 +4,7 @@ const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { put } = require('@vercel/blob');
+const Busboy = require('busboy');
 
 const app = express();
 const prisma = new PrismaClient();
@@ -221,12 +222,113 @@ app.get('/api/papers/:id', authenticateToken, async (req, res) => {
 });
 
 app.post('/api/papers', authenticateToken, async (req, res) => {
+  // Check if Vercel Blob is configured
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    return res.status(501).json({ 
+      error: 'File upload not available',
+      message: 'Vercel Blob storage is not configured. Please add BLOB_READ_WRITE_TOKEN to your environment variables.',
+    });
+  }
+
+  const contentType = req.headers['content-type'] || '';
+  
+  // Handle multipart/form-data (file upload)
+  if (contentType.includes('multipart/form-data')) {
+    try {
+      const busboy = Busboy({ headers: req.headers });
+      let fileBuffer = null;
+      let fileName = null;
+      let fileSize = 0;
+
+      const filePromise = new Promise((resolve, reject) => {
+        busboy.on('file', (fieldname, file, info) => {
+          console.log('Receiving file:', info.filename, info.mimeType);
+          
+          if (info.mimeType !== 'application/pdf') {
+            reject(new Error('Only PDF files are allowed'));
+            return;
+          }
+          
+          fileName = info.filename;
+          const chunks = [];
+          
+          file.on('data', (chunk) => {
+            chunks.push(chunk);
+            fileSize += chunk.length;
+          });
+          
+          file.on('end', () => {
+            fileBuffer = Buffer.concat(chunks);
+            console.log('File received:', fileName, fileSize, 'bytes');
+          });
+        });
+
+        busboy.on('finish', () => {
+          if (fileBuffer) {
+            resolve({ fileBuffer, fileName, fileSize });
+          } else {
+            reject(new Error('No file received'));
+          }
+        });
+
+        busboy.on('error', reject);
+      });
+
+      req.pipe(busboy);
+      
+      const { fileBuffer: buffer, fileName: name, fileSize: size } = await filePromise;
+      
+      // Upload to Vercel Blob
+      const timestamp = Date.now();
+      const safeName = name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const uniqueFilename = `papers/${timestamp}-${safeName}`;
+
+      console.log('Uploading to Vercel Blob:', uniqueFilename);
+      
+      const blob = await put(uniqueFilename, buffer, {
+        access: 'public',
+        contentType: 'application/pdf',
+        addRandomSuffix: false,
+      });
+
+      console.log('PDF uploaded to Vercel Blob:', blob.url);
+
+      // Create paper in database with minimal data (AI analysis not available in serverless)
+      const paper = await prisma.paper.create({
+        data: {
+          title: name.replace('.pdf', '').replace(/_/g, ' '),
+          authors: null,
+          summary: 'Paper uploaded. AI analysis is only available when using the local backend server.',
+          keywords: [],
+          category: 'Other',
+          fileName: name,
+          filePath: blob.pathname,
+          fileSize: size,
+          publicationYear: null,
+          journal: null,
+          doi: null,
+          blobUrl: blob.url,
+          userId: req.user.userId
+        }
+      });
+
+      return res.status(201).json({
+        message: 'Paper uploaded successfully. Note: AI analysis is only available with local backend.',
+        paper: {
+          ...paper,
+          summaryText: paper.summary,
+          keyFindings: []
+        }
+      });
+      
+    } catch (error) {
+      console.error('Upload error:', error);
+      return res.status(500).json({ error: error.message || 'Failed to upload file' });
+    }
+  }
+  
+  // Handle JSON body (for programmatic creation)
   try {
-    // This endpoint expects a JSON body with:
-    // - title, authors, summary, keywords, category, fileName, fileSize, etc.
-    // - blobUrl: URL to the blob in Vercel Blob storage
-    // - or pdfData: base64 encoded PDF to upload to Vercel Blob
-    
     const { 
       title, authors, summary, keywords, category, 
       fileName, fileSize, pdfData, blobUrl, publicationYear, journal, doi
@@ -239,7 +341,7 @@ app.post('/api/papers', authenticateToken, async (req, res) => {
     let finalBlobUrl = blobUrl;
 
     // If pdfData is provided (base64), upload it to Vercel Blob
-    if (pdfData && !blobUrl && process.env.BLOB_READ_WRITE_TOKEN) {
+    if (pdfData && !blobUrl) {
       try {
         const buffer = Buffer.from(pdfData, 'base64');
         const timestamp = Date.now();
@@ -273,7 +375,7 @@ app.post('/api/papers', authenticateToken, async (req, res) => {
         keywords: keywords || [],
         category: category || 'Other',
         fileName,
-        filePath: finalBlobUrl, // Store blob URL in filePath
+        filePath: finalBlobUrl,
         fileSize: fileSize || 0,
         publicationYear: publicationYear || null,
         journal: journal || null,
