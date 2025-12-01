@@ -5,8 +5,32 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { put } = require('@vercel/blob');
 const Busboy = require('busboy');
-const pdfParse = require('pdf-parse');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// Lazy load pdf-parse and Gemini to avoid startup issues
+let pdfParse = null;
+let GoogleGenerativeAI = null;
+
+const loadPdfParse = () => {
+  if (!pdfParse) {
+    try {
+      pdfParse = require('pdf-parse');
+    } catch (e) {
+      console.error('Failed to load pdf-parse:', e.message);
+    }
+  }
+  return pdfParse;
+};
+
+const loadGemini = () => {
+  if (!GoogleGenerativeAI) {
+    try {
+      GoogleGenerativeAI = require('@google/generative-ai').GoogleGenerativeAI;
+    } catch (e) {
+      console.error('Failed to load Gemini:', e.message);
+    }
+  }
+  return GoogleGenerativeAI;
+};
 
 const app = express();
 
@@ -15,15 +39,11 @@ const globalForPrisma = global;
 const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-// Initialize Gemini AI if API key is available
-let genAI = null;
-if (process.env.GEMINI_API_KEY) {
-  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-}
-
 // AI Analysis function
 async function analyzePaper(text) {
-  if (!genAI) {
+  // Lazy load Gemini
+  const GeminiAI = loadGemini();
+  if (!GeminiAI || !process.env.GEMINI_API_KEY) {
     return {
       title: 'Untitled Paper',
       authors: null,
@@ -38,6 +58,7 @@ async function analyzePaper(text) {
   }
 
   try {
+    const genAI = new GeminiAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     
     // Truncate text if too long
@@ -412,14 +433,19 @@ app.post('/api/papers', authenticateToken, async (req, res) => {
 
       try {
         console.log('Extracting text from PDF...');
-        const pdfData = await pdfParse(buffer);
-        const extractedText = pdfData.text;
-        console.log('Extracted text length:', extractedText.length);
+        const pdfParseLib = loadPdfParse();
+        if (pdfParseLib) {
+          const pdfData = await pdfParseLib(buffer);
+          const extractedText = pdfData.text;
+          console.log('Extracted text length:', extractedText.length);
 
-        if (extractedText && extractedText.length > 100) {
-          console.log('Running AI analysis...');
-          analysis = await analyzePaper(extractedText);
-          console.log('AI analysis complete:', analysis.title);
+          if (extractedText && extractedText.length > 100) {
+            console.log('Running AI analysis...');
+            analysis = await analyzePaper(extractedText);
+            console.log('AI analysis complete:', analysis.title);
+          }
+        } else {
+          console.log('pdf-parse not available, skipping text extraction');
         }
       } catch (pdfError) {
         console.error('PDF extraction/analysis error:', pdfError.message);
