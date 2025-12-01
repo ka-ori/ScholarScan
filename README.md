@@ -130,7 +130,7 @@ The frontend dynamically retrieves data from backend APIs using:
 ### Prerequisites
 - Node.js v16+
 - npm or yarn
-- OpenAI API key
+- Gemini API key
 - Neon.tech PostgreSQL database
 
 ### Installation
