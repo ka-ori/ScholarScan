@@ -134,6 +134,7 @@ router.get('/', async (req, res, next) => {
       search, 
       sortBy = 'uploadedAt', 
       order = 'desc',
+      sort, // Support 'sort' param from requirement
       page = 1,
       limit = 10
     } = req.query;
@@ -141,6 +142,18 @@ router.get('/', async (req, res, next) => {
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
     const skip = (pageNum - 1) * limitNum;
+
+    // Handle sort alias
+    let finalSortBy = sortBy;
+    let finalOrder = order;
+
+    if (sort === 'date') {
+      finalSortBy = 'uploadedAt';
+      finalOrder = 'desc';
+    } else if (sort === 'title') {
+      finalSortBy = 'title';
+      finalOrder = 'asc';
+    }
 
     const where = {
       userId: req.user.userId,
@@ -159,7 +172,7 @@ router.get('/', async (req, res, next) => {
 
     const papers = await prisma.paper.findMany({
       where,
-      orderBy: { [sortBy]: order },
+      orderBy: { [finalSortBy]: finalOrder },
       skip,
       take: limitNum,
       select: {

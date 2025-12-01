@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { 
   ArrowLeft, Calendar, FileText, Edit2, Save, X, 
-  ExternalLink, User, ChevronRight, Eye
+  ExternalLink, User, ChevronRight, Eye, Trash2, Plus
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import api from '../api/axios'
@@ -21,6 +21,12 @@ function PaperDetail() {
   const [showPdfViewer, setShowPdfViewer] = useState(false)
   const [pdfPageNumber, setPdfPageNumber] = useState(1)
   const [highlightText, setHighlightText] = useState('')
+
+  // Notes state
+  const [notes, setNotes] = useState([])
+  const [newNote, setNewNote] = useState('')
+  const [editingNoteId, setEditingNoteId] = useState(null)
+  const [editNoteContent, setEditNoteContent] = useState('')
 
   useEffect(() => {
     const fetchPaper = async () => {
@@ -81,7 +87,52 @@ function PaperDetail() {
       }
     }
     fetchPaper()
+    fetchNotes()
   }, [id, navigate])
+
+  const fetchNotes = async () => {
+    try {
+      const { data } = await api.get(`/notes/${id}`)
+      setNotes(data.notes)
+    } catch (error) {
+      console.error('Failed to fetch notes', error)
+    }
+  }
+
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return
+    try {
+      const { data } = await api.post('/notes', { content: newNote, paperId: id })
+      setNotes([data.note, ...notes])
+      setNewNote('')
+      toast.success('Note added')
+    } catch (error) {
+      toast.error('Failed to add note')
+    }
+  }
+
+  const handleUpdateNote = async (noteId) => {
+    if (!editNoteContent.trim()) return
+    try {
+      const { data } = await api.put(`/notes/${noteId}`, { content: editNoteContent })
+      setNotes(notes.map(n => n.id === noteId ? data.note : n))
+      setEditingNoteId(null)
+      toast.success('Note updated')
+    } catch (error) {
+      toast.error('Failed to update note')
+    }
+  }
+
+  const handleDeleteNote = async (noteId) => {
+    if (!window.confirm('Delete this note?')) return
+    try {
+      await api.delete(`/notes/${noteId}`)
+      setNotes(notes.filter(n => n.id !== noteId))
+      toast.success('Note deleted')
+    } catch (error) {
+      toast.error('Failed to delete note')
+    }
+  }
 
   const handleSave = async () => {
     try {
@@ -361,6 +412,84 @@ function PaperDetail() {
                   <div className="text-2xl font-semibold text-black">{paper.keywords.length}</div>
                   <div className="text-xs text-gray-400">Keywords</div>
                 </div>
+              </div>
+            </section>
+
+            {/* Notes Section */}
+            <section className="pt-6 border-t border-gray-100">
+              <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Personal Notes</h2>
+              
+              {/* Add Note */}
+              <div className="flex gap-2 mb-4">
+                <input
+                  type="text"
+                  value={newNote}
+                  onChange={(e) => setNewNote(e.target.value)}
+                  placeholder="Add a note..."
+                  className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-black"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
+                />
+                <button 
+                  onClick={handleAddNote}
+                  className="p-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Notes List */}
+              <div className="space-y-3">
+                {notes.map((note) => (
+                  <div key={note.id} className="p-3 bg-gray-50 rounded-lg border border-gray-100 group">
+                    {editingNoteId === note.id ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={editNoteContent}
+                          onChange={(e) => setEditNoteContent(e.target.value)}
+                          className="flex-1 bg-white border border-gray-200 rounded px-2 py-1 text-sm"
+                          autoFocus
+                        />
+                        <button 
+                          onClick={() => handleUpdateNote(note.id)}
+                          className="p-1 text-green-600 hover:bg-green-50 rounded"
+                        >
+                          <Save className="h-3 w-3" />
+                        </button>
+                        <button 
+                          onClick={() => setEditingNoteId(null)}
+                          className="p-1 text-gray-400 hover:bg-gray-200 rounded"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-start gap-2">
+                        <p className="text-sm text-gray-700 break-words">{note.content}</p>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => {
+                              setEditingNoteId(note.id)
+                              setEditNoteContent(note.content)
+                            }}
+                            className="p-1 text-gray-400 hover:text-black hover:bg-gray-200 rounded"
+                          >
+                            <Edit2 className="h-3 w-3" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteNote(note.id)}
+                            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                    <div className="text-xs text-gray-400 mt-2">
+                      {new Date(note.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
               </div>
             </section>
           </div>

@@ -16,6 +16,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   papers    Paper[]
+  notes     Note[]
 
   @@map("users")
 }
@@ -34,6 +35,7 @@ model Paper {
   updatedAt     DateTime @updatedAt
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notes         Note[]
   fullText      String?  @db.Text
   publicationYear Int?
   journal       String?
@@ -44,4 +46,19 @@ model Paper {
   @@index([userId])
   @@index([category])
   @@index([uploadedAt])
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  paperId   String
+  paper     Paper    @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+  @@index([paperId])
+  @@index([userId])
 }

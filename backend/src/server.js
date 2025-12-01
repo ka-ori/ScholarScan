@@ -5,6 +5,7 @@ import fileUpload from 'express-fileupload';
 import authRoutes from './routes/auth.js';
 import paperRoutes from './routes/papers.js';
 import userRoutes from './routes/user.js';
+import noteRoutes from './routes/notes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -34,6 +35,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/papers', paperRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/notes', noteRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

@@ -2,10 +2,10 @@
  * Blob Storage Service using Vercel Blob
  * Handles file uploads to cloud storage
  */
-const { put, del, head } = require('@vercel/blob');
+import { put, del, head } from '@vercel/blob';
 
 // Check if Vercel Blob is configured
-const isVercelBlobConfigured = () => {
+export const isVercelBlobConfigured = () => {
   return !!process.env.BLOB_READ_WRITE_TOKEN;
 };
 
@@ -16,7 +16,7 @@ const isVercelBlobConfigured = () => {
  * @param {string} mimeType - The MIME type of the file
  * @returns {Promise<Object>} Blob response with url and metadata
  */
-const uploadFile = async (filename, fileContent, mimeType = 'application/pdf') => {
+export const uploadFile = async (filename, fileContent, mimeType = 'application/pdf') => {
   if (!isVercelBlobConfigured()) {
     throw new Error('Vercel Blob is not configured. Set BLOB_READ_WRITE_TOKEN environment variable.');
   }
@@ -50,7 +50,7 @@ const uploadFile = async (filename, fileContent, mimeType = 'application/pdf') =
  * @param {string} pathname - The pathname of the blob (from upload response)
  * @returns {Promise<void>}
  */
-const deleteFile = async (pathname) => {
+export const deleteFile = async (pathname) => {
   if (!isVercelBlobConfigured()) {
     return; // Silently ignore if not configured
   }
@@ -68,7 +68,7 @@ const deleteFile = async (pathname) => {
  * @param {string} pathname - The pathname of the blob
  * @returns {Promise<Object>} Blob metadata
  */
-const getFileMetadata = async (pathname) => {
+export const getFileMetadata = async (pathname) => {
   if (!isVercelBlobConfigured()) {
     throw new Error('Vercel Blob is not configured.');
   }
@@ -80,11 +80,4 @@ const getFileMetadata = async (pathname) => {
     console.error('Blob metadata error:', error);
     throw new Error(`Failed to get blob metadata: ${error.message}`);
   }
-};
-
-module.exports = {
-  uploadFile,
-  deleteFile,
-  getFileMetadata,
-  isVercelBlobConfigured,
 };

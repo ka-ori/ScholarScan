@@ -32,15 +32,29 @@ function Dashboard() {
   const [selectedCategory, setSelectedCategory] = useState('All Categories')
   const [papers, setPapers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    hasNext: false,
+    hasPrev: false
+  })
+  const [page, setPage] = useState(1)
+  const [sortBy, setSortBy] = useState('uploadedAt')
+  const [order, setOrder] = useState('desc')
 
   useEffect(() => {
     fetchPapers()
-  }, [selectedCategory])
+  }, [selectedCategory, page, sortBy, order])
 
   const fetchPapers = async (search = searchQuery) => {
     try {
       setLoading(true)
-      const params = {}
+      const params = {
+        page,
+        limit: 9, // 3x3 grid
+        sortBy,
+        order
+      }
       if (selectedCategory !== 'All Categories') {
         params.category = selectedCategory
       }
@@ -50,6 +64,9 @@ function Dashboard() {
       
       const { data } = await api.get('/papers', { params })
       setPapers(data.papers || [])
+      if (data.pagination) {
+        setPagination(data.pagination)
+      }
     } catch (error) {
       console.error('Failed to fetch papers:', error)
       toast.error('Failed to load papers')
@@ -60,6 +77,26 @@ function Dashboard() {
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value)
+    setPage(1) // Reset to page 1 on search
+    fetchPapers(e.target.value)
+  }
+
+  const handleSortChange = (e) => {
+    const value = e.target.value
+    if (value === 'Most Recent') {
+      setSortBy('uploadedAt')
+      setOrder('desc')
+    } else if (value === 'Oldest First') {
+      setSortBy('uploadedAt')
+      setOrder('asc')
+    } else if (value === 'A-Z') {
+      setSortBy('title')
+      setOrder('asc')
+    } else if (value === 'Z-A') {
+      setSortBy('title')
+      setOrder('desc')
+    }
+    setPage(1)
   }
 
   const handleLogout = () => {
@@ -163,18 +200,17 @@ function Dashboard() {
                   type="text"
                   placeholder="Search papers by title, keywords, or summary..."
                   value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    // Fetch papers with search query
-                    fetchPapers(e.target.value)
-                  }}
+                  onChange={handleSearch}
                   className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
               </div>
               <div className="flex gap-2">
                 <select 
                   value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedCategory(e.target.value)
+                    setPage(1)
+                  }}
                   className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-gray-700"
                 >
                   <option>All Categories</option>
@@ -185,7 +221,10 @@ function Dashboard() {
                 <button className="px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <Filter className="w-5 h-5 text-gray-600" />
                 </button>
-                <select className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-gray-700">
+                <select 
+                  onChange={handleSortChange}
+                  className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black bg-white text-gray-700"
+                >
                   <option>Most Recent</option>
                   <option>Oldest First</option>
                   <option>A-Z</option>
@@ -215,65 +254,90 @@ function Dashboard() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {papers.map((paper) => (
-                  <div
-                    key={paper.id}
-                    className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                    onClick={() => navigate(`/paper/${paper.id}`)}
-                  >
-                    {/* Category Badge */}
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className={`w-10 h-10 ${getCategoryColor(paper.category)} rounded-lg flex items-center justify-center`}>
-                        <FileText className="w-5 h-5 text-white" />
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {papers.map((paper) => (
+                    <div
+                      key={paper.id}
+                      className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => navigate(`/paper/${paper.id}`)}
+                    >
+                      {/* Category Badge */}
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className={`w-10 h-10 ${getCategoryColor(paper.category)} rounded-lg flex items-center justify-center`}>
+                          <FileText className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Clock className="w-4 h-4" />
+                          {new Date(paper.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Clock className="w-4 h-4" />
-                        {new Date(paper.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+
+                      {/* Title */}
+                      <h3 className="text-lg font-bold text-black mb-2 line-clamp-2">
+                        {paper.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                        {parseSummary(paper.summary)}
+                      </p>
+
+                      {/* Keywords/Tags */}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {(paper.keywords || []).slice(0, 2).map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200"
+                          >
+                            <Tag className="w-3 h-3" />
+                            {tag}
+                          </span>
+                        ))}
+                        {(paper.keywords || []).length > 2 && (
+                          <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200">
+                            +{paper.keywords.length - 2} more
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Footer */}
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <span className="text-sm text-gray-600">{paper.category}</span>
+                        <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
+                          View Details
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
+                  ))}
+                </div>
 
-                    {/* Title */}
-                    <h3 className="text-lg font-bold text-black mb-2 line-clamp-2">
-                      {paper.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                      {parseSummary(paper.summary)}
-                    </p>
-
-                    {/* Keywords/Tags */}
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {(paper.keywords || []).slice(0, 2).map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200"
-                        >
-                          <Tag className="w-3 h-3" />
-                          {tag}
-                        </span>
-                      ))}
-                      {(paper.keywords || []).length > 2 && (
-                        <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200">
-                          +{paper.keywords.length - 2} more
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Footer */}
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <span className="text-sm text-gray-600">{paper.category}</span>
-                      <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
-                        View Details
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                      </button>
-                    </div>
+                {/* Pagination Controls */}
+                {pagination.totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-4 mt-8">
+                    <button
+                      onClick={() => setPage(p => Math.max(1, p - 1))}
+                      disabled={!pagination.hasPrev}
+                      className="px-4 py-2 border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="text-sm text-gray-600">
+                      Page {pagination.currentPage} of {pagination.totalPages}
+                    </span>
+                    <button
+                      onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                      disabled={!pagination.hasNext}
+                      className="px-4 py-2 border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </div>
         )}
