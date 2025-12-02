@@ -134,6 +134,17 @@ function PaperDetail() {
     }
   }
 
+  const handleDeletePaper = async () => {
+    if (!window.confirm('Are you sure you want to delete this paper? This action cannot be undone.')) return
+    try {
+      await api.delete(`/papers/${id}`)
+      toast.success('Paper deleted successfully')
+      navigate('/dashboard')
+    } catch (error) {
+      toast.error('Failed to delete paper')
+    }
+  }
+
   const handleSave = async () => {
     try {
       const updateData = {
@@ -219,13 +230,22 @@ function PaperDetail() {
               View PDF
             </button>
             {!editing ? (
-              <button
-                onClick={() => setEditing(true)}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                <Edit2 className="h-4 w-4" />
-                Edit
-              </button>
+              <>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  <Edit2 className="h-4 w-4" />
+                  Edit
+                </button>
+                <button
+                  onClick={handleDeletePaper}
+                  className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </button>
+              </>
             ) : (
               <>
                 <button onClick={handleCancel} className="flex items-center gap-2 px-4 py-2 text-sm border border-gray-200 rounded-lg hover:border-black transition-colors">
