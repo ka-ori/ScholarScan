@@ -346,20 +346,21 @@ function HomePage() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.style.animationPlayState = 'running'
-            observer.unobserve(entry.target)
+            entry.target.classList.add('animate-in')
           }
         })
       },
-      { threshold: 0.2, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.1, rootMargin: '50px' }
     )
 
     stats.forEach(stat => {
-      stat.style.animationPlayState = 'paused'
       observer.observe(stat)
     })
 
-    return () => observer.disconnect()
+    return () => {
+      stats.forEach(stat => observer.unobserve(stat))
+      observer.disconnect()
+    }
   }, [])
 
   return (
@@ -663,7 +664,7 @@ function HomePage() {
                   key={stat.id}
                   className={`bg-white border-2 border-black rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-default lazy-stat`}
                   style={{
-                    transitionDelay: `${index * 100}ms`
+                    animationDelay: `${index * 100}ms`
                   }}
                 >
                   <div className="flex items-start justify-between mb-4">
