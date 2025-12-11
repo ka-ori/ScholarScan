@@ -403,7 +403,7 @@ function HomePage() {
               <span className="letter-track inline-flex relative items-end">
                 {['I', 'n', 's', 't', 'a', 'n', 't', ' ', 'A', 'n', 'a', 'l', 'y', 's', 'i', 's'].map((letter, index) => (
                   <span 
-                    key={index} 
+                    key={letter === ' ' ? 'space' : letter}
                     ref={el => letterRefs.current[index] = el}
                     className="inline-block"
                     style={{ display: 'inline-block' }}
@@ -629,19 +629,19 @@ function HomePage() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
-              'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=300&fit=crop',
-              'https://images.unsplash.com/photo-1516979187457-635ffe35ff8f?w=400&h=300&fit=crop',
-              'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400&h=300&fit=crop',
-              'https://images.unsplash.com/photo-1516979187457-635ffe35ff8f?w=400&h=300&fit=crop',
-              'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
-              'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop',
-              'https://images.unsplash.com/photo-1533838e4e12-e4d70bc1987b?w=400&h=300&fit=crop',
-              'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=400&h=300&fit=crop'
-            ].map((image, idx) => (
-              <div key={idx} className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gray-200 aspect-square shadow-lg hover:shadow-xl transition-shadow group">
+              { id: 'research-1', url: 'https://images.unsplash.com/photo-1576091160550-112173f7f869?w=400&h=300&fit=crop', label: 'Research notebook' },
+              { id: 'research-2', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop', label: 'Data analysis charts' },
+              { id: 'research-3', url: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=300&fit=crop', label: 'Research papers' },
+              { id: 'research-4', url: 'https://images.unsplash.com/photo-1576091160550-112173f7f869?w=400&h=300&fit=crop', label: 'Academic study' },
+              { id: 'research-5', url: 'https://images.unsplash.com/photo-1516979187457-635ffe35ff8f?w=400&h=300&fit=crop', label: 'Laboratory research' },
+              { id: 'research-6', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop', label: 'Scientific analysis' },
+              { id: 'research-7', url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop', label: 'Study documentation' },
+              { id: 'research-8', url: 'https://images.unsplash.com/photo-1516979187457-635ffe35ff8f?w=400&h=300&fit=crop', label: 'Research methodology' }
+            ].map((image) => (
+              <div key={image.id} className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gray-200 aspect-square shadow-lg hover:shadow-xl transition-shadow group">
                 <LazyImage
-                  src={image}
-                  alt={`Research paper ${idx + 1}`}
+                  src={image.url}
+                  alt={image.label}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
@@ -659,21 +659,21 @@ function HomePage() {
             <div className="proof-card bg-white rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-sm border-2 border-gray-200">
               <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Stanford University</h3>
               <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
-                "ScholarScan has transformed how our research team processes papers."
+                &ldquo;ScholarScan has transformed how our research team processes papers.&rdquo;
               </p>
               <p className="text-xs sm:text-sm text-gray-500">— Research Director</p>
             </div>
             <div className="proof-card bg-white rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-sm border-2 border-gray-200">
               <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">MIT Research Lab</h3>
               <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
-                "The AI analysis is incredibly accurate. Like a research assistant that never sleeps."
+                &ldquo;The AI analysis is incredibly accurate. Like a research assistant that never sleeps.&rdquo;
               </p>
               <p className="text-xs sm:text-sm text-gray-500">— Senior Researcher</p>
             </div>
             <div className="proof-card bg-white rounded-xl sm:rounded-2xl p-5 sm:p-6 lg:p-8 shadow-sm border-2 border-gray-200 sm:col-span-2 lg:col-span-1">
               <h3 className="text-lg sm:text-xl font-bold mb-2 sm:mb-3">Cambridge AI Lab</h3>
               <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">
-                "Using AI-native tools like ScholarScan is an important competitive advantage."
+                &ldquo;Using AI-native tools like ScholarScan is an important competitive advantage.&rdquo;
               </p>
               <p className="text-xs sm:text-sm text-gray-500">— Lab Manager</p>
             </div>

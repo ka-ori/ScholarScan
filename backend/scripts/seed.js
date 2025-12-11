@@ -28,13 +28,13 @@ const seed = async () => {
         where: { email: user.email }
       })
 
-      if (!existing) {
+      if (existing) {
+        console.log(`User already exists: ${user.email}`)
+      } else {
         await prisma.user.create({
           data: user
         })
         console.log(`Created user: ${user.email}`)
-      } else {
-        console.log(`User already exists: ${user.email}`)
       }
     }
 

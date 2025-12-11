@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import PropTypes from 'prop-types'
 
 function LazyImage({ 
   src, 
@@ -10,13 +11,23 @@ function LazyImage({
   width = null,
   height = null
 }) {
+  LazyImage.propTypes = {
+    src: PropTypes.string.isRequired,
+    alt: PropTypes.string,
+    placeholder: PropTypes.string,
+    className: PropTypes.string,
+    onLoad: PropTypes.func,
+    eager: PropTypes.bool,
+    width: PropTypes.number,
+    height: PropTypes.number
+  }
   const [imageSrc, setImageSrc] = useState(eager ? src : placeholder)
   const [imageRef, setImageRef] = useState(null)
   const [isLoaded, setIsLoaded] = useState(false)
   const [error, setError] = useState(false)
 
   useEffect(() => {
-    if (eager || !('IntersectionObserver' in window)) {
+    if (eager || !('IntersectionObserver' in globalThis)) {
       setImageSrc(src)
       return
     }
@@ -60,13 +71,11 @@ function LazyImage({
 
   if (error) {
     return (
-      <div 
-        className={`${className} bg-gray-200 flex items-center justify-center text-gray-500 text-sm`}
-        role="img"
-        aria-label={alt}
-      >
-        Image unavailable
-      </div>
+      <img 
+        alt={alt}
+        className={`${className} bg-gray-200 flex items-center justify-center text-gray-500 text-sm w-full h-full object-cover`}
+        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23e5e7eb' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='12' fill='%236b7280' text-anchor='middle' dy='.3em'%3EImage unavailable%3C/text%3E%3C/svg%3E"
+      />
     )
   }
 
