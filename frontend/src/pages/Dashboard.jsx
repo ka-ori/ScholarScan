@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { 
-  FileText, Upload, Brain, Search, Clock, Tag, LogOut, Settings
+  FileText, Search, Clock, Tag, LogOut, Settings
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
+import PaginationControls from '../components/PaginationControls'
 
 // Helper to parse summary from JSON string
 const parseSummary = (summary) => {
@@ -42,39 +43,38 @@ function Dashboard() {
   const [order, setOrder] = useState('desc')
 
   useEffect(() => {
-    fetchPapers()
-  }, [page, sortBy, order])
-
-  const fetchPapers = async (search = searchQuery) => {
-    try {
-      setLoading(true)
-      const params = {
-        page,
-        limit: 9, // 3x3 grid
-        sortBy,
-        order
+    const fetchPapers = async () => {
+      try {
+        setLoading(true)
+        const params = {
+          page,
+          limit: 9, // 3x3 grid
+          sortBy,
+          order
+        }
+        if (searchQuery) {
+          params.search = searchQuery
+        }
+        
+        const { data } = await api.get('/papers', { params })
+        setPapers(data.papers || [])
+        if (data.pagination) {
+          setPagination(data.pagination)
+        }
+      } catch (error) {
+        console.error('Failed to fetch papers:', error)
+        toast.error('Failed to load papers')
+      } finally {
+        setLoading(false)
       }
-      if (search) {
-        params.search = search
-      }
-      
-      const { data } = await api.get('/papers', { params })
-      setPapers(data.papers || [])
-      if (data.pagination) {
-        setPagination(data.pagination)
-      }
-    } catch (error) {
-      console.error('Failed to fetch papers:', error)
-      toast.error('Failed to load papers')
-    } finally {
-      setLoading(false)
     }
-  }
+
+    fetchPapers()
+  }, [page, sortBy, order, searchQuery])
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value)
     setPage(1) // Reset to page 1 on search
-    fetchPapers(e.target.value)
   }
 
   const handleSortChange = (e) => {
@@ -203,14 +203,16 @@ function Dashboard() {
             </div>
 
             {/* Papers Grid */}
-            {loading ? (
+            {loading && (
               <div className="flex justify-center items-center py-12">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
                   <p className="text-gray-600">Loading your papers...</p>
                 </div>
               </div>
-            ) : papers.length === 0 ? (
+            )}
+
+            {!loading && papers.length === 0 && (
               <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
                 <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No papers yet</h3>
@@ -222,14 +224,21 @@ function Dashboard() {
                   Upload Paper
                 </button>
               </div>
-            ) : (
+            )}
+
+            {!loading && papers.length > 0 && (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {papers.map((paper) => (
-                    <div
+                    <button
                       key={paper.id}
-                      className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer"
+                      className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer text-left w-full"
                       onClick={() => navigate(`/paper/${paper.id}`)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          navigate(`/paper/${paper.id}`)
+                        }
+                      }}
                     >
                       {/* Category Badge */}
                       <div className="flex items-center gap-2 mb-4">
@@ -254,9 +263,9 @@ function Dashboard() {
 
                       {/* Keywords/Tags */}
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {(paper.keywords || []).slice(0, 2).map((tag, idx) => (
+                        {(paper.keywords || []).slice(0, 2).map((tag) => (
                           <span
-                            key={idx}
+                            key={tag}
                             className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200"
                           >
                             <Tag className="w-3 h-3" />
@@ -280,32 +289,19 @@ function Dashboard() {
                           </svg>
                         </button>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
 
                 {/* Pagination Controls */}
-                {pagination.totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-4 mt-8">
-                    <button
-                      onClick={() => setPage(p => Math.max(1, p - 1))}
-                      disabled={!pagination.hasPrev}
-                      className="px-4 py-2 border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="text-sm text-gray-600">
-                      Page {pagination.currentPage} of {pagination.totalPages}
-                    </span>
-                    <button
-                      onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
-                      disabled={!pagination.hasNext}
-                      className="px-4 py-2 border border-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
+                <PaginationControls 
+                  currentPage={pagination.currentPage}
+                  totalPages={pagination.totalPages}
+                  totalCount={pagination.totalCount}
+                  pageSize={9}
+                  isLoading={loading}
+                  onPageChange={setPage}
+                />
               </>
             )}
           </div>
