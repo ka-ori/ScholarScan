@@ -84,10 +84,12 @@ function LazyImage({
       ref={setImageRef}
       className={`relative overflow-hidden ${className}`}
       style={{
-        width: width ? `${width}px` : 'auto',
-        height: height ? `${height}px` : 'auto',
-        paddingBottom: width && height ? `${(height / width) * 100}%` : undefined,
-        position: width && height ? 'relative' : 'static'
+        ...(width ? { width: `${width}px` } : {}),
+        ...(height ? { height: `${height}px` } : {}),
+        ...(width && height ? { 
+          paddingBottom: `${(height / width) * 100}%`,
+          position: 'relative'
+        } : {})
       }}
     >
       {placeholder && imageSrc === placeholder && (
