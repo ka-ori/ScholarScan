@@ -72,6 +72,24 @@ This saves time, increases comprehension, and helps researchers focus on innovat
 
 ---
 
+## 👤 Demo Users
+
+You can test ScholarScan with the following demo user accounts:
+
+| Email | Password | Role |
+|-------|----------|------|
+| demo@scholarscan.com | demo123 | General User |
+| student@scholarscan.com | demo123 | Student |
+| researcher@scholarscan.com | demo123 | Researcher |
+
+To seed the database with demo users, run:
+```bash
+cd backend
+npm run seed
+```
+
+---
+
 ## 📊 CRUD Using APIs and Database
 
 ScholarScan implements complete CRUD operations through RESTful APIs:
