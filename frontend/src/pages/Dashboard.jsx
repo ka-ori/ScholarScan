@@ -8,7 +8,7 @@ import api from '../api/axios'
 import toast from 'react-hot-toast'
 import PaginationControls from '../components/PaginationControls'
 
-// Helper to parse summary from JSON string
+ 
 const parseSummary = (summary) => {
   if (!summary) return ''
   if (typeof summary === 'string' && summary.trim().startsWith('{')) {
@@ -48,7 +48,7 @@ function Dashboard() {
         setLoading(true)
         const params = {
           page,
-          limit: 9, // 3x3 grid
+          limit: 9,  
           sortBy,
           order
         }
@@ -74,7 +74,7 @@ function Dashboard() {
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value)
-    setPage(1) // Reset to page 1 on search
+    setPage(1)  
   }
 
   const handleSortChange = (e) => {
@@ -116,9 +116,9 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Main Content */}
+      { }
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8 py-6 sm:py-8">
-        {/* Welcome Section with User Name */}
+        { }
         <div className="mb-8 bg-white rounded-xl border border-gray-200 p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div className="flex-1">
@@ -147,7 +147,7 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Tabs */}
+        { }
         <div className="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
           <button
             onClick={() => navigate('/upload')}
@@ -172,12 +172,12 @@ function Dashboard() {
         </div>
 
         {activeView === 'upload' ? (
-          /* Upload View */
+           
           navigate('/upload')
         ) : (
-          /* Library View */
+           
           <div>
-            {/* Search and Filters */}
+            { }
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="flex-1 relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -202,7 +202,7 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* Papers Grid */}
+            { }
             {loading && (
               <div className="flex justify-center items-center py-12">
                 <div className="text-center">
@@ -240,7 +240,7 @@ function Dashboard() {
                         }
                       }}
                     >
-                      {/* Category Badge */}
+                      { }
                       <div className="flex items-center gap-2 mb-4">
                         <div className={`w-10 h-10 ${getCategoryColor(paper.category)} rounded-lg flex items-center justify-center`}>
                           <FileText className="w-5 h-5 text-white" />
@@ -251,17 +251,17 @@ function Dashboard() {
                         </div>
                       </div>
 
-                      {/* Title */}
+                      { }
                       <h3 className="text-lg font-bold text-black mb-2 line-clamp-2">
                         {paper.title}
                       </h3>
 
-                      {/* Description */}
+                      { }
                       <p className="text-sm text-gray-600 mb-4 line-clamp-3">
                         {parseSummary(paper.summary)}
                       </p>
 
-                      {/* Keywords/Tags */}
+                      { }
                       <div className="flex flex-wrap gap-2 mb-4">
                         {(paper.keywords || []).slice(0, 2).map((tag) => (
                           <span
@@ -279,7 +279,7 @@ function Dashboard() {
                         )}
                       </div>
 
-                      {/* Footer */}
+                      { }
                       <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                         <span className="text-sm text-gray-600">{paper.category}</span>
                         <button className="text-sm font-medium text-black hover:underline flex items-center gap-1">
@@ -293,7 +293,7 @@ function Dashboard() {
                   ))}
                 </div>
 
-                {/* Pagination Controls */}
+                { }
                 <PaginationControls 
                   currentPage={pagination.currentPage}
                   totalPages={pagination.totalPages}

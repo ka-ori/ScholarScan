@@ -5,7 +5,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import api from '../api/axios'
 
-// Set up PDF.js worker
+ 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
 
 function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
@@ -15,12 +15,12 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null)
-  const [pdfDoc, setPdfDoc] = useState(null) // eslint-disable-line no-unused-vars
+  const [pdfDoc, setPdfDoc] = useState(null)  
   const [searchingPages, setSearchingPages] = useState(false)
   const [searchStatus, setSearchStatus] = useState('')
   const containerRef = useRef(null)
 
-  // Fetch PDF with authentication and create blob URL
+   
   useEffect(() => {
     let blobUrl = null
     
@@ -29,17 +29,17 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         setLoading(true)
         setError(null)
         
-        // Extract paper ID from URL
+         
         const paperId = pdfUrl.split('/papers/')[1]?.split('/pdf')[0]
         if (!paperId) {
           throw new Error('Invalid PDF URL')
         }
         
-        // First, try to get the PDF URL (which may be a Vercel Blob URL)
+         
         try {
           const urlResponse = await api.get(`/papers/${paperId}/pdf`)
           if (urlResponse.data?.url) {
-            // Got a Vercel Blob URL - load directly from there
+             
             console.log('Using blob URL:', urlResponse.data.url)
             setPdfBlobUrl(urlResponse.data.url)
             setLoading(false)
@@ -49,7 +49,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
           console.log('PDF URL fetch failed, trying blob download:', urlErr.response?.status)
         }
         
-        // Fall back to downloading as blob
+         
         const response = await api.get(`/papers/${paperId}/pdf`, {
           responseType: 'blob'
         })
@@ -60,7 +60,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
       } catch (err) {
         console.error('Failed to fetch PDF:', err)
         
-        // Check if it's a cloud deployment limitation
+         
         if (err.response?.status === 501) {
           setError('PDF viewing is not available in the cloud deployment. Please run the backend locally to view PDF files.')
         } else if (err.response?.status === 404) {
@@ -74,7 +74,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
     
     fetchPdf()
     
-    // Cleanup blob URL on unmount
+     
     return () => {
       if (blobUrl) {
         URL.revokeObjectURL(blobUrl)
@@ -90,13 +90,13 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
     setNumPages(pages)
     setLoading(false)
     
-    // If we have highlight text, search for it across all pages
+     
     if (highlightText && pdfBlobUrl) {
       searchForTextInPdf(pages)
     }
   }
 
-  // Search through all pages to find the text
+   
   const searchForTextInPdf = async (totalPages) => {
     if (!highlightText || !pdfBlobUrl) return
     
@@ -108,15 +108,15 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
       const pdf = await loadingTask.promise
       setPdfDoc(pdf)
       
-      // Get a distinctive phrase from the highlight text (first 50-80 chars)
+       
       const searchPhrase = highlightText.toLowerCase().trim()
       
-      // Extract unique/distinctive words (longer words, not common)
+       
       const commonWords = ['the', 'and', 'was', 'she', 'her', 'had', 'that', 'with', 'for', 'but', 'not', 'this', 'from', 'they', 'were', 'been', 'have', 'are', 'being', 'would', 'could', 'after', 'first', 'also', 'into', 'only', 'over', 'such', 'even', 'most', 'other', 'some', 'very', 'just', 'about', 'which', 'when', 'there', 'because', 'through']
       const words = searchPhrase.split(/\s+/).filter(w => w.length > 3)
       const distinctiveWords = words.filter(w => !commonWords.includes(w.replace(/[^\w]/g, '')))
       
-      // Get the most distinctive terms (longest, least common)
+       
       const keyTerms = distinctiveWords
         .sort((a, b) => b.length - a.length)
         .slice(0, 6)
@@ -128,7 +128,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         return
       }
       
-      // Search each page for the text
+       
       let bestPage = null
       let bestScore = 0
       
@@ -137,7 +137,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         const textContent = await page.getTextContent()
         const pageText = textContent.items.map(item => item.str).join(' ').toLowerCase()
         
-        // Check for exact phrase match first (first 40 chars)
+         
         const shortPhrase = searchPhrase.substring(0, 40).replace(/[^\w\s]/g, '')
         if (pageText.replace(/[^\w\s]/g, '').includes(shortPhrase)) {
           console.log(`Found exact phrase match on page ${pageNum}`)
@@ -147,7 +147,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
           return
         }
         
-        // Count distinctive term matches
+         
         const matchCount = keyTerms.filter(term => pageText.includes(term.replace(/[^\w]/g, ''))).length
         const score = matchCount / keyTerms.length
         
@@ -157,7 +157,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         }
       }
       
-      // Use best matching page if score is good enough
+       
       if (bestPage && bestScore >= 0.5) {
         console.log(`Best match on page ${bestPage} with score ${bestScore}`)
         setSearchStatus(`Found on page ${bestPage}`)
@@ -180,11 +180,11 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
     setLoading(false)
   }
 
-  // Highlight text in the PDF after page renders
+   
   const highlightTextInPage = useCallback(() => {
     if (!highlightText || !containerRef.current) return
 
-    // Try multiple times with increasing delays for PDFs that render slowly
+     
     const attemptHighlight = (attempt = 0) => {
       const textLayer = containerRef.current?.querySelector('.react-pdf__Page__textContent')
       if (!textLayer) {
@@ -194,7 +194,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         return
       }
 
-      // Get all text-containing elements
+       
       const allElements = Array.from(textLayer.querySelectorAll('span, div'))
         .filter(el => el.textContent && el.textContent.trim().length > 0)
       
@@ -203,7 +203,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         return
       }
 
-      // Clear previous highlights
+       
       allElements.forEach(el => {
         el.style.backgroundColor = ''
         el.style.borderRadius = ''
@@ -211,17 +211,17 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         el.removeAttribute('data-highlighted')
       })
 
-      // Common words to ignore when matching
+       
       const commonWords = ['the', 'and', 'was', 'she', 'her', 'had', 'that', 'with', 'for', 'but', 'not', 'this', 'from', 'they', 'were', 'been', 'have', 'are', 'being', 'would', 'could', 'after', 'first', 'also', 'into', 'only', 'over', 'such', 'even', 'most', 'other', 'some', 'very', 'just', 'about', 'which', 'when', 'there', 'because', 'through', 'child', 'children', 'mother', 'father', 'long', 'own', 'felt', 'feel', 'made', 'make', 'said', 'told', 'left', 'went', 'came', 'took', 'gave', 'got', 'all', 'any', 'way', 'one', 'two']
       
-      // Get the full page text
+       
       const fullPageText = allElements.map(el => el.textContent).join(' ').toLowerCase()
       
-      // Prepare search text
+       
       const searchLower = highlightText.toLowerCase().trim()
       const searchWords = searchLower.split(/\s+/).filter(w => w.length > 2)
       
-      // Get ONLY distinctive words (not common)
+       
       const distinctiveWords = searchWords
         .map(w => w.replace(/[^\w]/g, ''))
         .filter(w => w.length > 4 && !commonWords.includes(w))
@@ -231,12 +231,12 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
       let foundMatch = false
       let highlightedElements = []
 
-      // Strategy 1: Look for exact phrase (first 30-50 chars normalized)
+       
       const shortPhrase = searchLower.substring(0, 50).replace(/[^\w\s]/g, '').trim()
       const pageTextNormalized = fullPageText.replace(/[^\w\s]/g, '')
       
       if (pageTextNormalized.includes(shortPhrase)) {
-        // Found the phrase - now highlight elements that contain parts of it
+         
         const phraseWords = shortPhrase.split(/\s+/).filter(w => w.length > 3 && !commonWords.includes(w))
         
         allElements.forEach(el => {
@@ -251,12 +251,12 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         })
       }
 
-      // Strategy 2: Match by distinctive words only (if phrase not found)
+       
       if (!foundMatch && distinctiveWords.length > 0) {
         allElements.forEach(el => {
           const elText = el.textContent.toLowerCase().replace(/[^\w]/g, '')
           
-          // Only highlight if element contains a distinctive word
+           
           const hasDistinctive = distinctiveWords.some(word => elText.includes(word))
           
           if (hasDistinctive && elText.length > 3) {
@@ -267,7 +267,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         })
       }
 
-      // Scroll to first highlighted element
+       
       if (highlightedElements.length > 0) {
         highlightedElements[0].scrollIntoView({ behavior: 'smooth', block: 'center' })
         console.log('Highlighted', highlightedElements.length, 'elements')
@@ -286,7 +286,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
       }
     }
 
-    // Start attempting to highlight after a short delay
+     
     setTimeout(() => attemptHighlight(0), 200)
   }, [highlightText])
 
@@ -308,7 +308,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex flex-col">
-      {/* Header */}
+      { }
       <div className="bg-white border-b px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-600">
@@ -361,7 +361,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         </button>
       </div>
 
-      {/* Highlight info bar */}
+      { }
       {highlightText && (
         <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-2 flex items-center justify-between">
           <p className="text-sm text-yellow-800">
@@ -382,7 +382,7 @@ function PDFViewer({ pdfUrl, pageNumber = 1, highlightText = '', onClose }) {
         </div>
       )}
 
-      {/* PDF Container */}
+      { }
       <div 
         ref={containerRef}
         className="flex-1 overflow-auto bg-gray-800 flex justify-center py-4"

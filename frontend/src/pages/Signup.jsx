@@ -14,7 +14,7 @@ function Signup() {
   const { login } = useAuthStore()
   const navigate = useNavigate()
 
-  // Initialize Notyf only once
+   
   const notyf = useMemo(() => new Notyf({
     duration: 4000,
     position: { x: 'right', y: 'bottom' },
@@ -85,7 +85,7 @@ function Signup() {
   const handleBlur = (field) => {
     setTouched({ ...touched, [field]: true })
     
-    // Validate on blur
+     
     const error = validateField(field, formData[field])
     const newErrors = { ...errors }
     
@@ -95,7 +95,7 @@ function Signup() {
       delete newErrors[field]
     }
     
-    // Always preserve submit error
+     
     if (errors.submit) {
       newErrors.submit = errors.submit
     }
@@ -104,13 +104,13 @@ function Signup() {
   }
 
   const handleSubmit = async (e) => {
-    // Prevent ALL default form behavior
+     
     if (e && typeof e.preventDefault === 'function') {
       e.preventDefault()
       e.stopPropagation()
     }
     
-    // Validate all fields
+     
     const newErrors = {}
     const nameError = validateField('name', formData.name)
     const emailError = validateField('email', formData.email)
@@ -148,8 +148,8 @@ function Signup() {
       const errorMessage = error.response?.data?.error || 'Signup failed. Please try again.'
       console.error('Signup error:', errorMessage)
       console.log('Form data before error toast:', formData)
-      // IMPORTANT: DO NOT clear formData, touched, or errors on error
-      // User needs to see what they entered and the error message
+       
+       
       notyf.error(errorMessage)
     }
   }
@@ -158,7 +158,7 @@ function Signup() {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
     
-    // Only validate if field has been touched
+     
     if (touched[name]) {
       const error = validateField(name, value)
       const newErrors = { ...errors }
@@ -169,7 +169,7 @@ function Signup() {
         delete newErrors[name]
       }
       
-      // CRITICAL: Always preserve submit error when typing
+       
       if (errors.submit) {
         newErrors.submit = errors.submit
       }
@@ -180,7 +180,7 @@ function Signup() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col lg:flex-row">
-      {/* Left Side - Features/Content */}
+      { }
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 flex-col justify-center items-center p-8 lg:p-12">
         <div className="max-w-md">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
@@ -230,18 +230,18 @@ function Signup() {
         </div>
       </div>
 
-      {/* Right Side - Signup Form */}
+      { }
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 sm:px-6 lg:px-16 py-8 sm:py-12">
         <div className="w-full max-w-sm mx-auto">
-          {/* Header */}
+          { }
           <div className="mb-8 sm:mb-10">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
             <p className="text-sm sm:text-base text-gray-600">Join ScholarScan and start analyzing papers today</p>
           </div>
 
-          {/* Form */}
+          { }
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Name Field */}
+            { }
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name
@@ -276,7 +276,7 @@ function Signup() {
               )}
             </div>
 
-            {/* Email Field */}
+            { }
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -311,7 +311,7 @@ function Signup() {
               )}
             </div>
 
-            {/* Password Field */}
+            { }
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
@@ -347,7 +347,7 @@ function Signup() {
               <p className="mt-2 text-xs text-gray-500">Must be at least 6 characters</p>
             </div>
 
-            {/* Confirm Password Field */}
+            { }
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Confirm Password
@@ -391,7 +391,7 @@ function Signup() {
             </button>
           </form>
 
-          {/* Footer */}
+          { }
           <p className="mt-8 text-center text-sm text-gray-600">
             Already have an account?{' '}
             <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">

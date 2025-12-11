@@ -20,11 +20,11 @@ function App() {
   const { setHasHydrated } = useAuthStore()
 
   useEffect(() => {
-    // Trigger hydration check on mount
+     
     setHasHydrated(true)
   }, [setHasHydrated])
 
-  // Show loading state while hydrating
+   
   if (!_hasHydrated) {
     return (
       <div className="flex items-center justify-center h-screen bg-white">

@@ -22,7 +22,7 @@ function PaperDetail() {
   const [pdfPageNumber, setPdfPageNumber] = useState(1)
   const [highlightText, setHighlightText] = useState('')
 
-  // Notes state
+   
   const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState('')
   const [editingNoteId, setEditingNoteId] = useState(null)
@@ -33,31 +33,31 @@ function PaperDetail() {
       try {
         const { data } = await api.get(`/papers/${id}`)
         
-        // Parse the summary field - it might be a JSON string or already parsed
+         
         let parsedSummary = ''
         let parsedFindings = []
         
         const rawSummary = data.paper.summary || ''
         
-        // Try to parse if it looks like JSON
+         
         if (typeof rawSummary === 'string' && rawSummary.trim().startsWith('{')) {
           try {
             const parsed = JSON.parse(rawSummary)
             parsedSummary = parsed.summary || rawSummary
             parsedFindings = parsed.keyFindings || []
           } catch {
-            // Not valid JSON, use as-is
+             
             parsedSummary = rawSummary
           }
         } else if (typeof rawSummary === 'object' && rawSummary !== null) {
-          // Already an object
+           
           parsedSummary = rawSummary.summary || ''
           parsedFindings = rawSummary.keyFindings || []
         } else {
           parsedSummary = rawSummary
         }
         
-        // Use explicit fields if they exist
+         
         if (data.paper.summaryText) {
           parsedSummary = data.paper.summaryText
         }
@@ -208,7 +208,7 @@ function PaperDetail() {
       )}
 
       <div className="max-w-5xl mx-auto px-6 py-12">
-        {/* Header */}
+        { }
         <div className="flex items-center justify-between mb-12">
           <button
             onClick={() => navigate('/dashboard')}
@@ -261,7 +261,7 @@ function PaperDetail() {
           </div>
         </div>
 
-        {/* Title Section */}
+        { }
         <div className="mb-10">
           <div className="flex items-center gap-3 mb-4">
             {editing ? (
@@ -327,9 +327,9 @@ function PaperDetail() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Main Content */}
+          { }
           <div className="lg:col-span-2 space-y-10">
-            {/* Summary */}
+            { }
             <section>
               <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Summary</h2>
               {editing ? (
@@ -344,7 +344,7 @@ function PaperDetail() {
               )}
             </section>
 
-            {/* Key Findings */}
+            { }
             {keyFindings.length > 0 && (
               <section>
                 <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">
@@ -383,9 +383,9 @@ function PaperDetail() {
             )}
           </div>
 
-          {/* Sidebar */}
+          { }
           <div className="space-y-8">
-            {/* Keywords */}
+            { }
             <section>
               <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Keywords</h2>
               {editing ? (
@@ -407,7 +407,7 @@ function PaperDetail() {
               )}
             </section>
 
-            {/* File Info */}
+            { }
             <section>
               <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">File</h2>
               <div className="space-y-3 text-sm">
@@ -421,7 +421,7 @@ function PaperDetail() {
               </div>
             </section>
 
-            {/* Stats */}
+            { }
             <section className="pt-6 border-t border-gray-100">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -435,11 +435,11 @@ function PaperDetail() {
               </div>
             </section>
 
-            {/* Notes Section */}
+            { }
             <section className="pt-6 border-t border-gray-100">
               <h2 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Personal Notes</h2>
               
-              {/* Add Note */}
+              { }
               <div className="flex gap-2 mb-4">
                 <input
                   type="text"
@@ -457,7 +457,7 @@ function PaperDetail() {
                 </button>
               </div>
 
-              {/* Notes List */}
+              { }
               <div className="space-y-3">
                 {notes.map((note) => (
                   <div key={note.id} className="p-3 bg-gray-50 rounded-lg border border-gray-100 group">

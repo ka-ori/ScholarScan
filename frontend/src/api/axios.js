@@ -8,7 +8,7 @@ const api = axios.create({
   },
 })
 
-// Add token to requests
+ 
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token
   if (token) {
@@ -17,12 +17,12 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// Handle auth errors - but NOT for password change which returns 401 for wrong password
+ 
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Don't auto-logout on 401 - let individual components handle errors
-    // This prevents logout when password change fails due to wrong current password
+     
+     
     return Promise.reject(error)
   }
 )

@@ -30,7 +30,7 @@
   }
 }
 
-/* Glass Morphism Toast Styles */
+ 
 @keyframes slideInFromBottomRight {
   from {
     transform: translateX(500px) translateY(500px);
@@ -138,7 +138,7 @@
   background: linear-gradient(to right, rgba(59, 130, 246, 0.6), rgba(59, 130, 246, 0.3)) !important;
 }
 
-/* Notyf Glass Morphism Styles */
+ 
 .notyf {
   position: fixed;
   bottom: 24px !important;

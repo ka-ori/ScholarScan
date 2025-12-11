@@ -22,7 +22,7 @@ function Navbar() {
     <nav className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14">
-          {/* Logo */}
+          { }
           <Link to="/" className="flex items-center space-x-2 sm:space-x-3">
             <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
               <GraduationCap className="h-5 w-5 text-black stroke-2" />
@@ -32,11 +32,11 @@ function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
+          { }
           <div className="hidden md:flex items-center space-x-1">
             {isAuthenticated ? (
               <>
-                {/* Authenticated Navigation */}
+                { }
                 <Link
                   to="/"
                   className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
@@ -58,7 +58,7 @@ function Navbar() {
                   Dashboard
                 </Link>
 
-                {/* Authenticated User Buttons */}
+                { }
                 <div className="flex items-center gap-2 ml-3 pl-3 border-l border-gray-200">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -80,7 +80,7 @@ function Navbar() {
               </>
             ) : (
               <>
-                {/* Unauthenticated Navigation */}
+                { }
                 <Link
                   to="/"
                   className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
@@ -102,7 +102,7 @@ function Navbar() {
                   Dashboard
                 </Link>
 
-                {/* Auth Buttons */}
+                { }
                 <div className="flex items-center gap-2 ml-3 pl-3 border-l border-gray-200">
                   <Link 
                     to="/login" 
@@ -121,7 +121,7 @@ function Navbar() {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          { }
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100"
@@ -134,12 +134,12 @@ function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        { }
         {mobileMenuOpen && (
           <div className="md:hidden pb-4 border-t border-gray-200">
             {isAuthenticated ? (
               <>
-                {/* Mobile Authenticated Menu */}
+                { }
                 <div className="pt-3 pb-3 px-2 border-b border-gray-200">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -185,7 +185,7 @@ function Navbar() {
               </>
             ) : (
               <>
-                {/* Mobile Unauthenticated Menu */}
+                { }
                 <Link
                   to="/"
                   onClick={handleNavClick}

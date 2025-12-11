@@ -26,23 +26,23 @@ function HomePage() {
   useEffect(() => {
     setIsVisible(true)
 
-    // Scroll to top button visibility
+     
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300)
     }
 
     window.addEventListener('scroll', handleScroll)
 
-    // Enable smooth scrolling
+     
     gsap.config({
       force3D: true
     })
 
-    // Hero animation: "Instant Analysis" falls and bends the underline
+     
     if (instantAnalysisRef.current && underlineRef.current && periodRef.current) {
       const heroTimeline = gsap.timeline({ delay: 0.5 })
 
-      // Prepare initial states
+       
       gsap.set(instantAnalysisRef.current, { y: -200, opacity: 0 })
       gsap.set(underlineRef.current, { rotation: 0 })
 
@@ -75,7 +75,7 @@ function HomePage() {
           display: 'block'
         })
 
-        // Reset letter state before animation
+         
         letterRefs.current.forEach(letter => {
           if (letter) {
             letter.dataset.bounced = ''
@@ -83,7 +83,7 @@ function HomePage() {
           }
         })
 
-        // Text falls in
+         
         heroTimeline.to(instantAnalysisRef.current, {
           y: 0,
           opacity: 1,
@@ -91,14 +91,14 @@ function HomePage() {
           ease: 'power2.out'
         })
 
-        // Underline bend
+         
         heroTimeline.to(underlineRef.current, {
           rotation: -1,
           duration: 0.3,
           ease: 'elastic.out(1, 0.5)'
         }, '-=0.2')
 
-        // Period drops to the underline
+         
         heroTimeline.fromTo(periodEl,
           { x: startX + dropOffsetX, y: periodBaseline - 160 },
           {
@@ -110,7 +110,7 @@ function HomePage() {
           '-=0.3'
         )
 
-        // Period rolls left along the underline (constant height)
+         
         heroTimeline.to(periodEl, {
           x: endX,
           rotation: -540,
@@ -123,7 +123,7 @@ function HomePage() {
             const currentUnderlineRect = underlineRef.current.getBoundingClientRect()
             const currentTrackRect = letterTrack.getBoundingClientRect()
             
-            // Recalculate period's y-position to match moving underline
+             
             const currentUnderlineTop = currentUnderlineRect.top - currentTrackRect.top
             const currentPeriodY = currentUnderlineTop - (periodSize * 1.6) / 2
             gsap.set(periodEl, { y: currentPeriodY })
@@ -181,17 +181,17 @@ function HomePage() {
       }
     }
 
-    // Infinite scrolling "Trusted By" section
+     
     if (trustedByRef.current) {
       const logosContainer = trustedByRef.current.querySelector('.logos-scroll')
       
       if (logosContainer) {
-        // Animation: scroll left infinitely
+         
         gsap.fromTo(
           logosContainer,
           { x: 0 },
           {
-            x: -logosContainer.offsetWidth / 3, // Scroll by one set width
+            x: -logosContainer.offsetWidth / 3,  
             duration: 30,
             ease: 'none',
             repeat: -1,
@@ -201,7 +201,7 @@ function HomePage() {
       }
     }
 
-    // Animate research-lib with pop-up effect
+     
     if (researchLibRef.current) {
       gsap.fromTo(researchLibRef.current,
         { scale: 0.8, opacity: 0, y: 50 },
@@ -221,7 +221,7 @@ function HomePage() {
       )
     }
 
-    // Feature 1 - AI Analysis animation (slide from left)
+     
     if (feature1Ref.current) {
       const leftContent = feature1Ref.current.querySelector('.feature-content')
       const rightContent = feature1Ref.current.querySelector('.feature-visual')
@@ -257,7 +257,7 @@ function HomePage() {
       )
     }
 
-    // Feature 2 - Search animation (slide from right)
+     
     if (feature2Ref.current) {
       const leftContent = feature2Ref.current.querySelector('.feature-visual')
       const rightContent = feature2Ref.current.querySelector('.feature-content')
@@ -293,7 +293,7 @@ function HomePage() {
       )
     }
 
-    // Social proof cards stagger animation
+     
     if (socialProofRef.current) {
       const cards = socialProofRef.current.querySelectorAll('.proof-card')
       
@@ -314,7 +314,7 @@ function HomePage() {
       )
     }
 
-    // Final CTA scale animation
+     
     if (ctaRef.current) {
       gsap.fromTo(ctaRef.current,
         { scale: 0.9, opacity: 0 },
@@ -332,14 +332,14 @@ function HomePage() {
       )
     }
 
-    // Cleanup
+     
     return () => {
       window.removeEventListener('scroll', handleScroll)
       ScrollTrigger.getAll().forEach(trigger => trigger.kill())
     }
   }, [])
 
-  // Lazy load stats when scrolling into view
+   
   useEffect(() => {
     const stats = document.querySelectorAll('.lazy-stat')
     
@@ -366,7 +366,7 @@ function HomePage() {
 
   return (
     <div className="min-h-screen bg-white relative overflow-x-hidden">
-      {/* Scroll to Top Button */}
+      { }
       {showScrollTop && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -379,7 +379,7 @@ function HomePage() {
         </button>
       )}
 
-      {/* Navigation Bar */}
+      { }
       <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4 flex justify-between items-center">
           <div className="hidden sm:flex gap-4 md:gap-8">
@@ -418,7 +418,7 @@ function HomePage() {
         </div>
       </nav>
 
-      {/* Hero Section - Add padding-top for navbar */}
+      { }
       <div className="relative pt-20 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6">
         <div className={`max-w-5xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h1 className="text-4xl sm:text-6xl lg:text-8xl font-bold text-black mb-4 sm:mb-6">
@@ -464,7 +464,7 @@ function HomePage() {
             )}
           </div>
 
-          {/* Demo Preview */}
+          { }
           <div ref={researchLibRef} className="research-lib mt-12 sm:mt-16 bg-white rounded-2xl shadow-2xl border-2 border-gray-200 overflow-hidden mx-auto max-w-4xl">
             <div className="bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 border-b-2 border-gray-200">
               <div className="flex gap-2">
@@ -506,12 +506,12 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Trusted By Section */}
+      { }
       <div ref={trustedByRef} className="py-10 sm:py-16 border-y border-gray-200 bg-white overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
           <p className="text-center text-xs sm:text-sm text-gray-500 mb-6 sm:mb-8 font-medium">TRUSTED BY TEAMS THAT SHIP</p>
           <div className="logos-scroll flex gap-12 sm:gap-16 md:gap-24 items-center" style={{ width: 'max-content' }}>
-            {/* First set of logos */}
+            { }
             <div className="flex gap-12 sm:gap-16 md:gap-24 opacity-40">
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">OpenAI</div>
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">Vercel</div>
@@ -519,7 +519,7 @@ function HomePage() {
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">MIT</div>
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">Stanford</div>
             </div>
-            {/* Duplicate set for seamless loop */}
+            { }
             <div className="flex gap-12 sm:gap-16 md:gap-24 opacity-40">
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">OpenAI</div>
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">Vercel</div>
@@ -527,7 +527,7 @@ function HomePage() {
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">MIT</div>
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">Stanford</div>
             </div>
-            {/* Triple set for extra coverage */}
+            { }
             <div className="flex gap-12 sm:gap-16 md:gap-24 opacity-40">
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">OpenAI</div>
               <div className="text-xl sm:text-2xl md:text-3xl font-bold text-black whitespace-nowrap">Vercel</div>
@@ -539,7 +539,7 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Feature 1 - AI Analysis */}
+      { }
       <div ref={feature1Ref} id="features" className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-16 items-center">
@@ -599,7 +599,7 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Feature 2 - Search */}
+      { }
       <div ref={feature2Ref} id="search" className="py-16 sm:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
           <div className="grid lg:grid-cols-2 gap-8 sm:gap-16 items-center">
@@ -644,7 +644,7 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Featured Research - Lazy Loaded Images */}
+      { }
       <div className="py-16 sm:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-12 text-center">
@@ -742,7 +742,7 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Final CTA */}
+      { }
       <div ref={ctaRef} className="py-16 sm:py-24 lg:py-32 bg-gray-50">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-black">
@@ -770,7 +770,7 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Footer */}
+      { }
       <footer className="bg-white border-t-2 border-gray-200 py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
           <div className="flex flex-col items-center">

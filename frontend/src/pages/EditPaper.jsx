@@ -98,7 +98,7 @@ function EditPaper() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-3xl mx-auto px-6 py-12">
-        {/* Header */}
+        { }
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => navigate(`/paper/${id}`)}
@@ -112,7 +112,7 @@ function EditPaper() {
         <h1 className="text-2xl font-semibold text-black mb-8">Edit Paper</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Title */}
+          { }
           <div>
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
               Title *
@@ -127,7 +127,7 @@ function EditPaper() {
             />
           </div>
 
-          {/* Authors */}
+          { }
           <div>
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
               Authors
@@ -142,7 +142,7 @@ function EditPaper() {
             />
           </div>
 
-          {/* Category */}
+          { }
           <div>
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
               Category *
@@ -161,7 +161,7 @@ function EditPaper() {
             </select>
           </div>
 
-          {/* Publication Year & Journal */}
+          { }
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
@@ -193,7 +193,7 @@ function EditPaper() {
             </div>
           </div>
 
-          {/* DOI */}
+          { }
           <div>
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
               DOI
@@ -208,7 +208,7 @@ function EditPaper() {
             />
           </div>
 
-          {/* Keywords */}
+          { }
           <div>
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
               Keywords
@@ -224,7 +224,7 @@ function EditPaper() {
             <p className="text-xs text-gray-400 mt-1">Separate keywords with commas</p>
           </div>
 
-          {/* Summary */}
+          { }
           <div>
             <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
               Summary
@@ -238,7 +238,7 @@ function EditPaper() {
             />
           </div>
 
-          {/* Actions */}
+          { }
           <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
             <button
               type="button"

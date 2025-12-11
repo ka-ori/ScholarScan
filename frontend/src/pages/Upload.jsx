@@ -65,7 +65,7 @@ function Upload() {
     console.log('📦 FormData created:', formData.get('pdf'))
 
     try {
-      // Simulate progress
+       
       const progressInterval = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 90) {
@@ -106,7 +106,7 @@ function Upload() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
+      { }
       <div className="mb-8">
         <button
           onClick={() => navigate('/dashboard')}
@@ -120,7 +120,7 @@ function Upload() {
         </p>
       </div>
 
-      {/* Upload Card */}
+      { }
       <div className="card">
         {!file ? (
           <div
@@ -198,7 +198,7 @@ function Upload() {
         )}
       </div>
 
-      {/* Info Cards */}
+      { }
       <div className="grid md:grid-cols-2 gap-6 mt-8">
         <div className="card">
           <CheckCircle className="h-8 w-8 text-green-600 mb-3" />

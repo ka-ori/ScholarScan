@@ -13,7 +13,7 @@ function Security() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation Bar */}
+      { }
       <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-3">
@@ -39,7 +39,7 @@ function Security() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      { }
       <div className="relative pt-32 pb-20 px-4">
         <div className={`max-w-5xl mx-auto text-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold text-black mb-6">
@@ -51,7 +51,7 @@ function Security() {
         </div>
       </div>
 
-      {/* Security Features */}
+      { }
       <div className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-8 mb-16">
@@ -87,7 +87,7 @@ function Security() {
         </div>
       </div>
 
-      {/* Detailed Security Info */}
+      { }
       <div className="py-24 bg-white">
         <div className="max-w-3xl mx-auto px-4">
           <h2 className="text-5xl font-bold text-black mb-12">Our Security Measures</h2>
@@ -131,7 +131,7 @@ function Security() {
         </div>
       </div>
 
-      {/* CTA Section */}
+      { }
       <div className="py-32 bg-black">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-6xl font-bold mb-6 text-white">
@@ -150,7 +150,7 @@ function Security() {
         </div>
       </div>
 
-      {/* Footer */}
+      { }
       <footer className="bg-white border-t-2 border-gray-200 py-12">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">

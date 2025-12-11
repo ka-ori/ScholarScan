@@ -102,7 +102,7 @@ function Settings() {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* Header */}
+        { }
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => navigate('/dashboard')}
@@ -115,7 +115,7 @@ function Settings() {
 
         <h1 className="text-2xl font-semibold text-black mb-8">Settings</h1>
 
-        {/* Tabs */}
+        { }
         <div className="flex gap-1 mb-8 border-b border-gray-100">
           {[
             { id: 'profile', label: 'Profile', icon: User },
@@ -137,7 +137,7 @@ function Settings() {
           ))}
         </div>
 
-        {/* Profile Tab */}
+        { }
         {activeTab === 'profile' && (
           <form onSubmit={handleProfileSubmit} className="space-y-6 max-w-md">
             <div>
@@ -181,7 +181,7 @@ function Settings() {
           </form>
         )}
 
-        {/* Security Tab */}
+        { }
         {activeTab === 'security' && (
           <div className="space-y-8">
             <form onSubmit={handlePasswordSubmit} className="space-y-6 max-w-md">
@@ -242,7 +242,7 @@ function Settings() {
               </button>
             </form>
 
-            {/* Danger Zone */}
+            { }
             <div className="pt-8 border-t border-gray-100">
               <h2 className="text-lg font-medium text-red-600 mb-4">Danger Zone</h2>
               <p className="text-sm text-gray-600 mb-4">
@@ -279,10 +279,10 @@ function Settings() {
           </div>
         )}
 
-        {/* Stats Tab */}
+        { }
         {activeTab === 'stats' && (
           <div className="space-y-8">
-            {/* Overview */}
+            { }
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="p-6 bg-gray-50 rounded-xl">
                 <div className="text-3xl font-semibold text-black">{stats.totalPapers}</div>
@@ -300,7 +300,7 @@ function Settings() {
               </div>
             </div>
 
-            {/* Papers by Category */}
+            { }
             {stats.categoryCounts.length > 0 && (
               <div>
                 <h2 className="text-lg font-medium mb-4">Papers by Category</h2>
@@ -315,7 +315,7 @@ function Settings() {
               </div>
             )}
 
-            {/* Recent Papers */}
+            { }
             {stats.recentPapers.length > 0 && (
               <div>
                 <h2 className="text-lg font-medium mb-4">Recent Papers</h2>

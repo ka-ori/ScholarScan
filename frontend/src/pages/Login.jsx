@@ -14,7 +14,7 @@ function Login() {
   const { login } = useAuthStore()
   const navigate = useNavigate()
 
-  // Initialize Notyf only once
+   
   const notyf = useMemo(() => new Notyf({
     duration: 4000,
     position: { x: 'right', y: 'bottom' },
@@ -69,7 +69,7 @@ function Login() {
   const handleBlur = (field) => {
     setTouched({ ...touched, [field]: true })
     
-    // Validate on blur
+     
     const error = validateField(field, formData[field])
     const newErrors = { ...errors }
     
@@ -79,7 +79,7 @@ function Login() {
       delete newErrors[field]
     }
     
-    // Always preserve submit error
+     
     if (errors.submit) {
       newErrors.submit = errors.submit
     }
@@ -90,7 +90,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    // Validate all fields
+     
     const newErrors = {}
     const emailError = validateField('email', formData.email)
     const passwordError = validateField('password', formData.password)
@@ -137,7 +137,7 @@ function Login() {
     const { name, value } = e.target
     setFormData({ ...formData, [name]: value })
     
-    // Only validate if field has been touched
+     
     if (touched[name]) {
       const error = validateField(name, value)
       const newErrors = { ...errors }
@@ -148,7 +148,7 @@ function Login() {
         delete newErrors[name]
       }
       
-      // CRITICAL: Always preserve submit error when typing
+       
       if (errors.submit) {
         newErrors.submit = errors.submit
       }
@@ -159,7 +159,7 @@ function Login() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col lg:flex-row">
-      {/* Left Side - Features/Content */}
+      { }
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-50 to-blue-100 flex-col justify-center items-center p-8 lg:p-12">
         <div className="max-w-md">
           <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
@@ -209,16 +209,16 @@ function Login() {
         </div>
       </div>
 
-      {/* Right Side - Login Form */}
+      { }
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-4 sm:px-6 py-8 sm:py-12 lg:px-16">
         <div className="w-full max-w-sm mx-auto">
-          {/* Header */}
+          { }
           <div className="mb-8 sm:mb-10">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
             <p className="text-sm sm:text-base text-gray-600">Sign in to your ScholarScan account</p>
           </div>
 
-          {/* Form */}
+          { }
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -297,7 +297,7 @@ function Login() {
             </button>
           </form>
 
-          {/* Footer */}
+          { }
           <p className="mt-8 text-center text-sm text-gray-600">
             Don{"'"}t have an account?{' '}
             <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-medium">
