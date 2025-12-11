@@ -41,33 +41,33 @@ function App() {
       <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
       <Router>
         <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/security" element={<Security />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route
-          path="/dashboard"
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/upload"
-          element={isAuthenticated ? <Upload /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/paper/:id"
-          element={isAuthenticated ? <PaperDetail /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/paper/:id/edit"
-          element={isAuthenticated ? <EditPaper /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/settings"
-          element={isAuthenticated ? <Settings /> : <Navigate to="/login" />}
-        />
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/security" element={<Security />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route
+            path="/dashboard"
+            element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/upload"
+            element={isAuthenticated ? <Upload /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/paper/:id"
+            element={isAuthenticated ? <PaperDetail /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/paper/:id/edit"
+            element={isAuthenticated ? <EditPaper /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/settings"
+            element={isAuthenticated ? <Settings /> : <Navigate to="/login" />}
+          />
         </Routes>
       </Router>
     </>
