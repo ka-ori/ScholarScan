@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
-import { GraduationCap, Sparkles, ArrowRight, Brain, Users, ChevronRight, TrendingUp, BookOpen, Search, BarChart3, FileText, Zap } from 'lucide-react'
+import { GraduationCap, Sparkles, ArrowRight, Brain, Users, ChevronRight, Search, FileText, TrendingUp, BookOpen } from 'lucide-react'
 import { useAuthStore } from '../store/authStore'
+import LazyImage from '../components/LazyImage'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -643,49 +644,69 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Platform Statistics - Lazy Loaded */}
+      {/* Featured Research - Lazy Loaded Images */}
       <div className="py-16 sm:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-black mb-2">Platform Statistics</h2>
-            <p className="text-gray-600">ScholarScan impact and metrics</p>
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold text-black mb-4">Research Powered by ScholarScan</h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Join thousands of researchers who use our platform to analyze complex papers and data.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { id: 'stat-1', label: 'Papers Analyzed', value: '15,240', icon: BookOpen, trend: '+12% this month' },
-              { id: 'stat-2', label: 'Research Time Saved', value: '2,450h', icon: Zap, trend: '+28% faster' },
-              { id: 'stat-3', label: 'AI Insights Generated', value: '48,756', icon: BarChart3, trend: '+45% accuracy' },
-              { id: 'stat-4', label: 'Active Researchers', value: '3,842', icon: TrendingUp, trend: '+18% growth' }
-            ].map((stat, index) => {
-              const IconComponent = stat.icon
-              return (
-                <div
-                  key={stat.id}
-                  className={`bg-white border-2 border-black rounded-xl p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-105 cursor-default lazy-stat`}
-                  style={{
-                    animationDelay: `${index * 100}ms`
-                  }}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
-                      <IconComponent className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-
-                  <h3 className="text-gray-600 text-sm font-medium mb-2">{stat.label}</h3>
-
-                  <div className="mb-4">
-                    <p className="text-3xl sm:text-4xl font-bold text-black">{stat.value}</p>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-xs font-semibold text-black bg-gray-100 px-3 py-1 rounded-full w-fit">
-                    <TrendingUp className="w-3 h-3" />
-                    {stat.trend}
-                  </div>
+              {
+                id: 1,
+                src: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80',
+                title: 'Advanced Laboratory Research',
+                category: 'Biotechnology'
+              },
+              {
+                id: 2,
+                src: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80',
+                title: 'Academic Literature Review',
+                category: 'Humanities'
+              },
+              {
+                id: 3,
+                src: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=800&q=80',
+                title: 'University Library Archives',
+                category: 'Education'
+              },
+              {
+                id: 4,
+                src: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+                title: 'Digital Data Analysis',
+                category: 'Computer Science'
+              },
+              {
+                id: 5,
+                src: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+                title: 'Code & Algorithms',
+                category: 'Software Engineering'
+              },
+              {
+                id: 6,
+                src: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?auto=format&fit=crop&w=800&q=80',
+                title: 'Statistical Modeling',
+                category: 'Data Science'
+              }
+            ].map((item) => (
+              <div key={item.id} className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border-2 border-black">
+                <div className="aspect-w-16 aspect-h-10 bg-gray-200 overflow-hidden">
+                  <LazyImage
+                    src={item.src}
+                    alt={item.title}
+                    className="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-500"
+                  />
                 </div>
-              )
-            })}
+                <div className="p-6">
+                  <div className="text-xs font-bold text-blue-600 mb-2 uppercase tracking-wider">{item.category}</div>
+                  <h3 className="text-xl font-bold text-black mb-2">{item.title}</h3>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
