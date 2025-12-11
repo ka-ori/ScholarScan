@@ -257,3 +257,20 @@
 .notyf__dismiss-btn:active {
   transform: translateY(-50%) scale(0.95) !important;
 }
+
+/* Lazy Loading Stats Animation */
+@keyframes lazyStatsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lazy-stat {
+  animation: lazyStatsFadeIn 0.6s ease-out forwards;
+  opacity: 0;
+}
