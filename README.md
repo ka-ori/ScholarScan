@@ -35,8 +35,7 @@ This saves time, increases comprehension, and helps researchers focus on innovat
 - **JWT** - Secure authentication
 
 ### AI Integration
-- **OpenAI GPT API** - For summarization, keyword extraction, and topic classification
-- Alternative: Gemini, Claude (for future extensibility)
+- **Gemini GPT API** - For summarization, keyword extraction, and topic classification
 
 ### Deployment
 - **Frontend** – Vercel
