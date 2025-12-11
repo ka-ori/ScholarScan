@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { BarChart3, FileText, Zap, TrendingUp } from 'lucide-react'
 
 function StatisticsMetrics() {
-  const [stats, setStats] = useState([])
   const containerRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -21,43 +20,43 @@ function StatisticsMetrics() {
       observer.observe(containerRef.current)
     }
 
-    return () => observer.disconnect()
+    return () => {
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current)
+      }
+    }
   }, [])
 
-  useEffect(() => {
-    if (isVisible) {
-      setStats([
-        {
-          id: 'stat-1',
-          label: 'Papers Analyzed',
-          value: '15,240',
-          icon: FileText,
-          trend: '+12% this month'
-        },
-        {
-          id: 'stat-2',
-          label: 'Research Time Saved',
-          value: '2,450h',
-          icon: Zap,
-          trend: '+28% faster'
-        },
-        {
-          id: 'stat-3',
-          label: 'AI Insights Generated',
-          value: '48,756',
-          icon: BarChart3,
-          trend: '+45% accuracy'
-        },
-        {
-          id: 'stat-4',
-          label: 'Active Researchers',
-          value: '3,842',
-          icon: TrendingUp,
-          trend: '+18% growth'
-        }
-      ])
+  const stats = [
+    {
+      id: 'stat-1',
+      label: 'Papers Analyzed',
+      value: '15,240',
+      icon: FileText,
+      trend: '+12% this month'
+    },
+    {
+      id: 'stat-2',
+      label: 'Research Time Saved',
+      value: '2,450h',
+      icon: Zap,
+      trend: '+28% faster'
+    },
+    {
+      id: 'stat-3',
+      label: 'AI Insights Generated',
+      value: '48,756',
+      icon: BarChart3,
+      trend: '+45% accuracy'
+    },
+    {
+      id: 'stat-4',
+      label: 'Active Researchers',
+      value: '3,842',
+      icon: TrendingUp,
+      trend: '+18% growth'
     }
-  }, [isVisible])
+  ]
 
   return (
     <div ref={containerRef} className="mb-12">
@@ -66,7 +65,7 @@ function StatisticsMetrics() {
         <p className="text-gray-600">ScholarScan impact and metrics</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         {stats.map((stat) => {
           const IconComponent = stat.icon
           return (
