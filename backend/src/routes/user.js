@@ -1,15 +1,14 @@
-import express from 'express';
-import bcrypt from 'bcryptjs';
-import { z } from 'zod';
-import { authenticateToken } from '../middleware/auth.js';
-import prisma from '../config/database.js';
+import express from 'express'
+import bcrypt from 'bcryptjs'
+import { z } from 'zod'
+import { authenticateToken } from '../middleware/auth.js'
+import { parsePaginationParams, buildPaginationResponse } from '../utils/pagination.js'
+import prisma from '../config/database.js'
 
-const router = express.Router();
+const router = express.Router()
 
-// All routes require authentication
-router.use(authenticateToken);
+router.use(authenticateToken)
 
-// GET /api/user - Get current user profile
 router.get('/', async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({
@@ -24,10 +23,10 @@ router.get('/', async (req, res, next) => {
           select: { papers: true }
         }
       }
-    });
+    })
 
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'User not found' })
     }
 
     res.json({ 
@@ -35,29 +34,27 @@ router.get('/', async (req, res, next) => {
         ...user,
         paperCount: user._count.papers
       }
-    });
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 
-// PUT /api/user - Update user profile
 router.put('/', async (req, res, next) => {
   try {
     const updateSchema = z.object({
       name: z.string().min(2).optional(),
       email: z.string().email().optional()
-    });
+    })
 
-    const data = updateSchema.parse(req.body);
+    const data = updateSchema.parse(req.body)
 
-    // Check if email is being changed and if it's already taken
     if (data.email) {
       const existingUser = await prisma.user.findUnique({
         where: { email: data.email }
-      });
+      })
       if (existingUser && existingUser.id !== req.user.userId) {
-        return res.status(409).json({ error: 'Email already in use' });
+        return res.status(409).json({ error: 'Email already in use' })
       }
     }
 
@@ -71,96 +68,126 @@ router.put('/', async (req, res, next) => {
         createdAt: true,
         updatedAt: true
       }
-    });
+    })
 
-    res.json({ message: 'Profile updated successfully', user });
+    res.json({ message: 'Profile updated successfully', user })
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 
-// PUT /api/user/password - Change password
 router.put('/password', async (req, res, next) => {
-  console.log('=== Password change request received ===');
-  console.log('Body:', req.body);
-  console.log('User:', req.user);
-  
   try {
     const passwordSchema = z.object({
       currentPassword: z.string(),
       newPassword: z.string().min(6)
-    });
+    })
 
-    const { currentPassword, newPassword } = passwordSchema.parse(req.body);
-    console.log('Parsed passwords - currentPassword length:', currentPassword?.length);
+    const { currentPassword, newPassword } = passwordSchema.parse(req.body)
 
-    // Get user with password
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId }
-    });
+    })
     
     if (!user) {
-      console.log('User not found');
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'User not found' })
     }
-    console.log('Found user:', user.email);
 
-    // Verify current password
-    const isValid = await bcrypt.compare(currentPassword, user.password);
-    console.log('Password valid:', isValid);
+    const isValid = await bcrypt.compare(currentPassword, user.password)
     
     if (!isValid) {
-      console.log('Returning 401 - incorrect password');
-      return res.status(401).json({ error: 'Current password is incorrect' });
+      return res.status(401).json({ error: 'Current password is incorrect' })
     }
 
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
 
     await prisma.user.update({
       where: { id: req.user.userId },
       data: { password: hashedPassword }
-    });
+    })
 
-    console.log('Password changed successfully');
-    res.json({ message: 'Password changed successfully' });
+    res.json({ message: 'Password changed successfully' })
   } catch (error) {
-    console.error('Password change error:', error);
-    next(error);
+    next(error)
   }
-});
+})
 
-// DELETE /api/user - Delete account
 router.delete('/', async (req, res, next) => {
   try {
-    // Delete all user's papers first (cascade should handle this but being explicit)
     await prisma.paper.deleteMany({
       where: { userId: req.user.userId }
-    });
+    })
 
-    // Delete user
     await prisma.user.delete({
       where: { id: req.user.userId }
-    });
+    })
 
-    res.json({ message: 'Account deleted successfully' });
+    res.json({ message: 'Account deleted successfully' })
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 
-// GET /api/user/stats - Get user statistics
+router.get('/papers', async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, search = '', category = '', sortBy = 'uploadedAt', order = 'desc' } = req.query
+
+    const { skip, limit: parsedLimit } = parsePaginationParams({ page, limit })
+
+    const where = {
+      userId: req.user.userId,
+      ...(search && {
+        OR: [
+          { title: { contains: search, mode: 'insensitive' } },
+          { authors: { contains: search, mode: 'insensitive' } },
+          { keywords: { hasSome: [search] } }
+        ]
+      }),
+      ...(category && category !== 'All' && { category })
+    }
+
+    const totalCount = await prisma.paper.count({ where })
+
+    const papers = await prisma.paper.findMany({
+      where,
+      orderBy: { [sortBy]: order },
+      skip,
+      take: parsedLimit,
+      select: {
+        id: true,
+        title: true,
+        authors: true,
+        summary: true,
+        keywords: true,
+        category: true,
+        fileName: true,
+        fileSize: true,
+        uploadedAt: true,
+        publicationYear: true,
+        journal: true,
+        doi: true
+      }
+    })
+
+    const pagination = buildPaginationResponse(Number.parseInt(page), parsedLimit, totalCount)
+
+    res.json({ papers, pagination })
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.get('/stats', async (req, res, next) => {
   try {
     const totalPapers = await prisma.paper.count({
       where: { userId: req.user.userId }
-    });
+    })
 
     const categoryCounts = await prisma.paper.groupBy({
       by: ['category'],
       where: { userId: req.user.userId },
       _count: true
-    });
+    })
 
     const recentPapers = await prisma.paper.findMany({
       where: { userId: req.user.userId },
@@ -172,7 +199,7 @@ router.get('/stats', async (req, res, next) => {
         category: true,
         uploadedAt: true
       }
-    });
+    })
 
     res.json({
       totalPapers,
@@ -181,10 +208,10 @@ router.get('/stats', async (req, res, next) => {
         count: c._count
       })),
       recentPapers
-    });
+    })
   } catch (error) {
-    next(error);
+    next(error)
   }
-});
+})
 
-export default router;
+export default router
