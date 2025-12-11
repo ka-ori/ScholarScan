@@ -4,6 +4,7 @@ import { GraduationCap, Sparkles, ArrowRight, Brain, Users, ChevronRight, Trendi
 import { useAuthStore } from '../store/authStore'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import LazyImage from '../components/LazyImage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -618,7 +619,37 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Social Proof */}
+      <div className="py-16 sm:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-4 sm:mb-6 text-black">
+            Research Gallery
+          </h2>
+          <p className="text-center text-gray-600 mb-12 sm:mb-16">
+            Explore papers analyzed with ScholarScan
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {[
+              'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=300&fit=crop',
+              'https://images.unsplash.com/photo-1516979187457-635ffe35ff8f?w=400&h=300&fit=crop',
+              'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400&h=300&fit=crop',
+              'https://images.unsplash.com/photo-1516979187457-635ffe35ff8f?w=400&h=300&fit=crop',
+              'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop',
+              'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=300&fit=crop',
+              'https://images.unsplash.com/photo-1533838e4e12-e4d70bc1987b?w=400&h=300&fit=crop',
+              'https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=400&h=300&fit=crop'
+            ].map((image, idx) => (
+              <div key={idx} className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gray-200 aspect-square shadow-lg hover:shadow-xl transition-shadow group">
+                <LazyImage
+                  src={image}
+                  alt={`Research paper ${idx + 1}`}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div ref={socialProofRef} id="social-proof" className="py-16 sm:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12 lg:mb-16 text-black">
