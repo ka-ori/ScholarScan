@@ -7,6 +7,7 @@ import { useAuthStore } from '../store/authStore'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
 import PaginationControls from '../components/PaginationControls'
+import FeaturedPapers from '../components/FeaturedPapers'
 
 // Helper to parse summary from JSON string
 const parseSummary = (summary) => {
@@ -177,6 +178,9 @@ function Dashboard() {
         ) : (
           /* Library View */
           <div>
+            {/* Featured Papers Section */}
+            <FeaturedPapers />
+
             {/* Search and Filters */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="flex-1 relative">
