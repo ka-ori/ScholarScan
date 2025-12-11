@@ -7,35 +7,35 @@ function FeaturedPapers() {
       id: 'paper-1',
       title: 'Advanced Learners\' Use of Mobile Devices for English Language Study',
       url: 'https://files.eric.ed.gov/fulltext/EJ1172284.pdf',
-      image: 'https://lh7-rt.googleusercontent.com/slidesz/AGV27_Z1m8RZlb1zQyKLhqQ5bQwvJdhqXeGS3Ek8vE0nPTPO5PtCLm0_f5VmEhSk4K1qgFQ7RqgJXYLjPJzEUVZoYQr8Kb9ZIoGkNq0eJJWEqhGHvkJCw70=s1280?key=EVh3fZMOl7CZGPqDFczCNA',
+      image: 'https://images.unsplash.com/photo-1554224311-beee415c15b7?w=400&h=400&fit=crop',
       description: 'Research on mobile device usage in English language learning'
     },
     {
       id: 'paper-2',
       title: 'Introduction to 2D Materials - NITI Aayog Future Front',
       url: 'https://niti.gov.in/sites/default/files/2025-09/FTH-Quaterly-Insight-Sep-2025.pdf',
-      image: 'https://lh7-rt.googleusercontent.com/slidesz/AGV27_YhMvLHdC1cdhJ2CbVNNE5hEgz-O1fCG-KYf6d7gXVLevpGWcJ0vKGANPjfvmF4H-7gHj-r0uKD-g4UXvFH-h6jYdDj9m4PqPx2lQNWGf2x42jl0=s1280?key=EVh3fZMOl7CZGPqDFczCNA',
+      image: 'https://images.unsplash.com/photo-1635070041078-e291bc3d3f0f?w=400&h=400&fit=crop',
       description: 'Quarterly frontier tech insights on 2D materials'
     },
     {
       id: 'paper-3',
       title: 'India\'s Data Imperative - The Pivot Towards Quality',
       url: 'https://niti.gov.in/sites/default/files/2025-06/FTH-Quaterly-Insight-june.pdf',
-      image: 'https://lh7-rt.googleusercontent.com/slidesz/AGV27_YidhfvQqNOkwXXiJr5K5CG1PXUIJqSfOSd1p1pYJ9wUX7LyCnXvg7D5Vjh04bCUCyWk7G_wOPl3w_KN1Iur4YnCWN4cBKpzfxOq3s51-nfhNNwG_Q=s1280?key=EVh3fZMOl7CZGPqDFczCNA',
+      image: 'https://images.unsplash.com/photo-1526374965328-7f5ae4e8b51b?w=400&h=400&fit=crop',
       description: 'India\'s data strategy and quality initiatives'
     },
     {
       id: 'paper-4',
       title: 'The Only Way to Predict the Future is to Create It',
       url: 'https://niti.gov.in/sites/default/files/2025-03/Future-Front-Quarterly-Frontier-Tech-Insights-March-2025.pdf',
-      image: 'https://lh7-rt.googleusercontent.com/slidesz/AGV27_aHLLVf06fHMdwbh8YU5WbK7ELZqkIv8EKZvp7YDT3LhKDHqkDkB7_C_wXJ0d3fhPK0F9LDMSNvVV0w1Io_VuCNhqEwvKNJnXmYBQF0KeYhPYFxU=s1280?key=EVh3fZMOl7CZGPqDFczCNA',
+      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=400&fit=crop',
       description: 'Future tech insights and predictions for 2025'
     },
     {
       id: 'paper-5',
       title: 'Research Paper - Computer Science',
       url: 'https://www.sciencedirect.com/topics/computer-science/research-paper',
-      image: 'https://lh7-rt.googleusercontent.com/slidesz/AGV27_bXY0cUvVPq5X0vz-xN3SsVIxK1cHR0DQpMXNzpBG0_4Z2TKpO6TXB-YlLPkxAOI1oT5xr2SN30VxLh6mNIbvPKW0R99d5ZXLWt0YfE3YaEu6HXp0Q=s1280?key=EVh3fZMOl7CZGPqDFczCNA',
+      image: 'https://images.unsplash.com/photo-1516979187457-635ffe35ff8f?w=400&h=400&fit=crop',
       description: 'ScienceDirect research paper definitions and resources'
     }
   ]
