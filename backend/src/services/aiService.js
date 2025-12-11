@@ -1,11 +1,8 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
-/**
- * Categories for research paper classification
- */
 const RESEARCH_CATEGORIES = [
   'Computer Science',
   'Artificial Intelligence',
@@ -25,16 +22,9 @@ const RESEARCH_CATEGORIES = [
   'Other'
 ];
 
-/**
- * Analyze research paper using Google Gemini
- * @param {string} paperText - Full text of the research paper
- * @param {number} numPages - Total number of pages in the PDF
- * @returns {Promise<Object>} Analysis results
- */
 export async function analyzePaper(paperText, numPages = null) {
   try {
-    // Truncate text if too long (Gemini can handle larger context, but we'll be safe)
-    const truncatedText = paperText.substring(0, 30000);
+    const truncatedText = paperText.substring(0, 30000)
     
     const prompt = `Analyze the following research paper and extract the following information in JSON format:
           
@@ -70,17 +60,13 @@ IMPORTANT for keyFindings:
 - For textSnippet: Extract the EXACT quote from the text above that supports this finding (15-25 words)
 - Make sure textSnippet is word-for-word from the paper text`;
     
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const content = response.text().trim();
+    const result = await model.generateContent(prompt)
+    const response = result.response
+    const content = response.text().trim()
     
-    console.log('Gemini raw response:', content);
+    const jsonContent = content.replaceAll(/```json\n?/g, '').replaceAll(/```\n?/g, '')
+    const analysis = JSON.parse(jsonContent)
     
-    // Remove markdown code blocks if present
-    const jsonContent = content.replaceAll(/```json\n?/g, '').replaceAll(/```\n?/g, '');
-    const analysis = JSON.parse(jsonContent);
-    
-    // Validate and set defaults
     return {
       title: analysis.title || 'Untitled Paper',
       authors: analysis.authors || null,
@@ -91,11 +77,8 @@ IMPORTANT for keyFindings:
       journal: analysis.journal || null,
       doi: analysis.doi || null,
       keyFindings: Array.isArray(analysis.keyFindings) ? analysis.keyFindings : []
-    };
+    }
   } catch (error) {
-    console.error('AI analysis error:', error);
-    
-    // Fallback analysis if AI fails
     return {
       title: 'Analysis Error - Manual Review Required',
       authors: null,
@@ -106,6 +89,6 @@ IMPORTANT for keyFindings:
       journal: null,
       doi: null,
       keyFindings: []
-    };
+    }
   }
 }

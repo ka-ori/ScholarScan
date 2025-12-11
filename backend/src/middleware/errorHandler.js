@@ -1,32 +1,28 @@
 export const errorHandler = (err, req, res, next) => {
-  console.error('Error:', err);
+  console.error('Error:', err)
 
-  // Prisma errors
   if (err.code === 'P2002') {
-    return res.status(409).json({ error: 'This email is already registered. Please try logging in instead.' });
+    return res.status(409).json({ error: 'This email is already registered. Please try logging in instead.' })
   }
 
   if (err.code === 'P2025') {
-    return res.status(404).json({ error: 'User not found' });
+    return res.status(404).json({ error: 'User not found' })
   }
 
-  // Prisma connection errors - return user-friendly message
   if (err.code === 'P1002' || err.message?.includes('Can\'t reach database server')) {
-    return res.status(503).json({ error: 'Database connection failed. Please try again in a moment.' });
+    return res.status(500).json({ error: 'Database connection failed. Please try again in a moment.' })
   }
 
-  // JWT errors
   if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({ error: 'Invalid token' });
+    return res.status(401).json({ error: 'Invalid token' })
   }
 
   if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({ error: 'Token expired. Please log in again.' });
+    return res.status(401).json({ error: 'Token expired. Please log in again.' })
   }
 
-  // Validation errors
   if (err.name === 'ZodError') {
-    const messages = err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+    const messages = err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
     return res.status(400).json({ 
       error: `Validation failed: ${messages}`
     });
