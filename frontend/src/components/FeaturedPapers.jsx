@@ -2,30 +2,33 @@ import { useRef, useEffect, useState } from 'react'
 import { BarChart3, FileText, Zap, TrendingUp } from 'lucide-react'
 
 function StatisticsMetrics() {
-  const containerRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
+  const containerRef = useRef(null)
+  const [hasAnimated, setHasAnimated] = useState(false)
 
   useEffect(() => {
+    if (hasAnimated) return
+
+    const currentRef = containerRef.current
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !hasAnimated) {
           setIsVisible(true)
-          observer.unobserve(entry.target)
+          setHasAnimated(true)
+          observer.disconnect()
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     )
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current)
+    if (currentRef) {
+      observer.observe(currentRef)
     }
 
     return () => {
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current)
-      }
+      observer.disconnect()
     }
-  }, [])
+  }, [hasAnimated])
 
   const stats = [
     {

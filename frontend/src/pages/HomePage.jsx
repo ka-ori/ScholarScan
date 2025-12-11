@@ -4,7 +4,6 @@ import { GraduationCap, Sparkles, ArrowRight, Brain, Users, ChevronRight, Trendi
 import { useAuthStore } from '../store/authStore'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import LazyImage from '../components/LazyImage'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -615,37 +614,6 @@ function HomePage() {
                 Search across all your research papers instantly.
               </p>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="py-16 sm:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-6 xl:px-8">
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-center mb-4 sm:mb-6 text-black">
-            Research Gallery
-          </h2>
-          <p className="text-center text-gray-600 mb-12 sm:mb-16">
-            Explore papers analyzed with ScholarScan
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-            {[
-              { id: 'research-1', url: 'https://images.unsplash.com/photo-1576091160550-112173f7f869?w=400&h=300&fit=crop', label: 'Research notebook' },
-              { id: 'research-2', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop', label: 'Data analysis charts' },
-              { id: 'research-3', url: 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=400&h=300&fit=crop', label: 'Research papers' },
-              { id: 'research-4', url: 'https://images.unsplash.com/photo-1576091160550-112173f7f869?w=400&h=300&fit=crop', label: 'Academic study' },
-              { id: 'research-5', url: 'https://images.unsplash.com/photo-1516979187457-635ffe35ff8f?w=400&h=300&fit=crop', label: 'Laboratory research' },
-              { id: 'research-6', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop', label: 'Scientific analysis' },
-              { id: 'research-7', url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop', label: 'Study documentation' },
-              { id: 'research-8', url: 'https://images.unsplash.com/photo-1516979187457-635ffe35ff8f?w=400&h=300&fit=crop', label: 'Research methodology' }
-            ].map((image) => (
-              <div key={image.id} className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gray-200 aspect-square shadow-lg hover:shadow-xl transition-shadow group">
-                <LazyImage
-                  src={image.url}
-                  alt={image.label}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-            ))}
           </div>
         </div>
       </div>
